@@ -300,53 +300,16 @@ export function Navbar() {
               </Link>
             </motion.div>
             
-                {/* Static Navigation Links */}
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                >
-                  <Link href="/news" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px] truncate" style={{ textDecoration: 'none' }}>
-                    <span className="relative">
-                      <TranslatableText>News</TranslatableText>
-                      <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                    </span>
-                  </Link>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                >
-                  <Link href="/events" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px] truncate" style={{ textDecoration: 'none' }}>
-                    <span className="relative">
-                      <TranslatableText>Events</TranslatableText>
-                      <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                    </span>
-                  </Link>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.7 }}
-                >
-                  <Link href="/museums" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px] truncate" style={{ textDecoration: 'none' }}>
-                    <span className="relative">
-                      <TranslatableText>Museums</TranslatableText>
-                      <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                    </span>
-                  </Link>
-                </motion.div>
+
 
                 {/* Dynamic Categories from Admin */}
             {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
-              // Only show categories that have subcategories (dropdown behavior)
+              // Show categories that have subcategories OR pages
               const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+              const hasPages = pages.some(page => page.category === category.id && page.isPublished);
               
-              // Skip categories without subcategories - they don't need to be in navbar
-              if (!hasSubcategories) return null;
+              // Skip categories that have neither subcategories nor pages
+              if (!hasSubcategories && !hasPages) return null;
               
               return (
                 <motion.div 
@@ -699,11 +662,12 @@ export function Navbar() {
                   
                   {/* Dynamic Categories in Mobile Menu (Max 10) */}
                   {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
-                    // Only show categories that have subcategories (dropdown behavior)
+                    // Show categories that have subcategories OR pages
                     const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+                    const hasPages = pages.some(page => page.category === category.id && page.isPublished);
                     
-                    // Skip categories without subcategories - they don't need to be in navbar
-                    if (!hasSubcategories) return null;
+                    // Skip categories that have neither subcategories nor pages
+                    if (!hasSubcategories && !hasPages) return null;
                     
                     return (
                       <motion.div 
