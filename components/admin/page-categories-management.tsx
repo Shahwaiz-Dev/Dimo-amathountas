@@ -123,7 +123,7 @@ export function PageCategoriesManagement() {
       color: category.color || 'blue',
       isActive: category.isActive ?? true,
       parentCategory: category.parentCategory || 'none',
-      showInNavbar: (category as any).showInNavbar ?? false,
+      showInNavbar: category.showInNavbar ?? true, // Fixed: preserve existing value or default to true
     });
     setIsDialogOpen(true);
   };
@@ -150,9 +150,21 @@ export function PageCategoriesManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission started:', formData); // Debug log
+    
+    // Basic validation
+    if (!formData.name.en.trim() || !formData.name.el.trim()) {
+      toast({
+        title: currentLang === 'el' ? "Σφάλμα" : "Error",
+        description: currentLang === 'el' ? "Παρακαλώ συμπληρώστε το όνομα της κατηγορίας και στα αγγλικά και στα ελληνικά" : "Please fill in the category name in both English and Greek",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Validate navbar category limit
     if (formData.showInNavbar && !editingCategory) {
-      const currentNavbarCategories = categories.filter(cat => (cat as any).showInNavbar);
+      const currentNavbarCategories = categories.filter(cat => cat.showInNavbar);
       if (currentNavbarCategories.length >= 10) {
         toast({
           title: currentLang === 'el' ? "Σφάλμα" : "Error",
@@ -170,14 +182,19 @@ export function PageCategoriesManagement() {
         parentCategory: formData.parentCategory === 'none' ? undefined : formData.parentCategory
       };
 
+      console.log('Submitting data:', submissionData); // Debug log
+
       if (editingCategory) {
+        console.log('Updating category:', editingCategory.id); // Debug log
         await updatePageCategory(editingCategory.id, submissionData);
         toast({
           title: currentLang === 'el' ? "Επιτυχία" : "Success",
           description: currentLang === 'el' ? "Η κατηγορία ενημερώθηκε επιτυχώς" : "Category updated successfully",
         });
       } else {
-        await addPageCategory(submissionData);
+        console.log('Creating new category'); // Debug log
+        const newCategoryId = await addPageCategory(submissionData);
+        console.log('New category created with ID:', newCategoryId); // Debug log
         toast({
           title: currentLang === 'el' ? "Επιτυχία" : "Success",
           description: currentLang === 'el' ? "Η κατηγορία δημιουργήθηκε επιτυχώς" : "Category created successfully",
@@ -188,6 +205,7 @@ export function PageCategoriesManagement() {
       resetForm();
       loadCategories();
     } catch (error) {
+      console.error('Error in handleSubmit:', error); // Debug log
       toast({
         title: currentLang === 'el' ? "Σφάλμα" : "Error",
         description: currentLang === 'el' ? "Αποτυχία αποθήκευσης κατηγορίας" : "Failed to save category",
@@ -235,7 +253,7 @@ export function PageCategoriesManagement() {
             </p>
             <div className="flex items-center gap-4 mt-2">
               <Badge variant="outline" className="text-xs">
-                <TranslatableText>{{ en: 'Navbar Categories', el: 'Κατηγορίες Γραμμής Πλοήγησης' }}</TranslatableText>: {categories.filter(cat => (cat as any).showInNavbar).length}/10
+                <TranslatableText>{{ en: 'Navbar Categories', el: 'Κατηγορίες Γραμμής Πλοήγησης' }}</TranslatableText>: {categories.filter(cat => cat.showInNavbar).length}/10
               </Badge>
               <Badge variant="outline" className="text-xs">
                 <TranslatableText>{{ en: 'Total Categories', el: 'Συνολικές Κατηγορίες' }}</TranslatableText>: {categories.length}
@@ -249,7 +267,7 @@ export function PageCategoriesManagement() {
                 setIsDialogOpen(true);
               }}
               className="bg-primary text-white font-semibold"
-              disabled={categories.filter(cat => (cat as any).showInNavbar).length >= 10}
+              disabled={categories.filter(cat => cat.showInNavbar).length >= 10}
             >
               <Plus className="h-4 w-4 mr-2" />
               <TranslatableText>{{ en: 'Create Category', el: 'Δημιουργία Κατηγορίας' }}</TranslatableText>
@@ -434,21 +452,71 @@ export function PageCategoriesManagement() {
             </p>
             <div className="bg-white p-3 rounded border text-xs">
               {categories
-                .filter(cat => (cat as any).showInNavbar)
+                .filter(cat => cat.showInNavbar)
                 .map(cat => (
                   <div key={cat.id} className="mb-2 p-2 bg-gray-50 rounded">
                     <strong>{cat.name.en}</strong> - 
                     Active: {cat.isActive ? 'Yes' : 'No'}
                   </div>
                 ))}
-              {categories.filter(cat => (cat as any).showInNavbar).length === 0 && (
+              {categories.filter(cat => cat.showInNavbar).length === 0 && (
                 <p className="text-gray-500 italic">
                   <TranslatableText>{{ en: 'No categories are set to show in navbar', el: 'Δεν υπάρχουν κατηγορίες που να έχουν ρυθμιστεί για εμφάνιση στη γραμμή πλοήγησης' }}</TranslatableText>
                 </p>
               )}
             </div>
             
-
+            {/* Test Button */}
+            <div className="mt-4">
+              <Button 
+                onClick={() => {
+                  console.log('Current form data:', formData);
+                  console.log('Current categories:', categories);
+                  console.log('Categories with showInNavbar:', categories.filter(cat => cat.showInNavbar));
+                }}
+                variant="outline"
+                size="sm"
+                className="mr-2"
+              >
+                <TranslatableText>{{ en: 'Debug: Log Current State', el: 'Debug: Καταγραφή Τρέχουσας Κατάστασης' }}</TranslatableText>
+              </Button>
+              
+              <Button 
+                onClick={async () => {
+                  try {
+                    console.log('Testing category creation...');
+                    const testData = {
+                      name: { en: 'Test Category', el: 'Δοκιμαστική Κατηγορία' },
+                      description: { en: 'Test Description', el: 'Δοκιμαστική Περιγραφή' },
+                      icon: 'file-text',
+                      color: 'blue',
+                      isActive: true,
+                      showInNavbar: true
+                    };
+                    console.log('Test data:', testData);
+                    const result = await addPageCategory(testData);
+                    console.log('Test category created with ID:', result);
+                    toast({
+                      title: "Test Success",
+                      description: `Test category created with ID: ${result}`,
+                    });
+                    loadCategories(); // Refresh the list
+                  } catch (error) {
+                    console.error('Test category creation failed:', error);
+                    toast({
+                      title: "Test Failed",
+                      description: `Error: ${error}`,
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-green-100 text-green-700 hover:bg-green-200"
+              >
+                <TranslatableText>{{ en: 'Test: Create Sample Category', el: 'Test: Δημιουργία Δοκιμαστικής Κατηγορίας' }}</TranslatableText>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -619,24 +687,39 @@ export function PageCategoriesManagement() {
                 </p>
               </div>
 
+              {/* Active Status */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                />
+                <Label htmlFor="isActive" className="text-sm font-medium">
+                  <TranslatableText>{{ en: 'Active', el: 'Ενεργή' }}</TranslatableText>
+                </Label>
+                <span className="text-xs text-gray-500">
+                  <TranslatableText>{{ en: 'Enable or disable this category', el: 'Ενεργοποίηση ή απενεργοποίηση αυτής της κατηγορίας' }}</TranslatableText>
+                </span>
+              </div>
+
               {/* Show in Navbar */}
               <div className="flex items-center space-x-2">
                 <Switch
                   id="showInNavbar"
                   checked={formData.showInNavbar}
                   onCheckedChange={(checked) => setFormData({ ...formData, showInNavbar: checked })}
-                  disabled={!formData.showInNavbar && categories.filter(cat => (cat as any).showInNavbar).length >= 10}
+                  disabled={!formData.showInNavbar && categories.filter(cat => cat.showInNavbar).length >= 10}
                 />
                 <Label htmlFor="showInNavbar" className="text-sm font-medium">
                   <TranslatableText>{{ en: 'Show in Navbar', el: 'Εμφάνιση στη Γραμμή Πλοήγησης' }}</TranslatableText>
                 </Label>
                 <span className="text-xs text-gray-500">
-                  ({categories.filter(cat => (cat as any).showInNavbar).length}/10)
+                  ({categories.filter(cat => cat.showInNavbar).length}/10)
                 </span>
               </div>
               
               {/* Navbar Limit Warning */}
-              {!formData.showInNavbar && categories.filter(cat => (cat as any).showInNavbar).length >= 10 && (
+              {!formData.showInNavbar && categories.filter(cat => cat.showInNavbar).length >= 10 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
                   <div className="flex">
                     <div className="flex-shrink-0">
