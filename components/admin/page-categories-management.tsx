@@ -79,6 +79,8 @@ export function PageCategoriesManagement() {
     showInNavbar: true, // Changed to true by default
   });
 
+
+
   const loadCategories = useCallback(async () => {
     try {
       const fetchedCategories = await getPageCategories();
@@ -436,8 +438,7 @@ export function PageCategoriesManagement() {
                 .map(cat => (
                   <div key={cat.id} className="mb-2 p-2 bg-gray-50 rounded">
                     <strong>{cat.name.en}</strong> - 
-                    Active: {cat.isActive ? 'Yes' : 'No'}, 
-                    NavOrder: {(cat as any).navOrder || 0}
+                    Active: {cat.isActive ? 'Yes' : 'No'}
                   </div>
                 ))}
               {categories.filter(cat => (cat as any).showInNavbar).length === 0 && (
@@ -446,6 +447,8 @@ export function PageCategoriesManagement() {
                 </p>
               )}
             </div>
+            
+
           </div>
         </div>
       </div>

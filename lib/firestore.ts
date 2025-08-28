@@ -403,11 +403,8 @@ export interface PageCategory {
   icon?: string;
   color?: string;
   isActive?: boolean;
-  order?: number;
-  navOrder?: number; // Added for navbar sorting
   showInNavbar?: boolean; // Added for navbar filtering
   parentCategory?: string; // Added for subcategories
-  slug?: string; // Added for URL-friendly names
 }
 
 export async function getPageCategories(): Promise<PageCategory[]> {
@@ -443,26 +440,20 @@ export async function getNavbarCategories(): Promise<PageCategory[]> {
     
     // Return only categories that should be shown in navbar
     return categories
-      .filter(cat => cat.isActive && cat.showInNavbar)
-      .sort((a, b) => (a.navOrder ?? 999) - (b.navOrder ?? 999));
+      .filter(cat => cat.isActive && cat.showInNavbar);
   } catch (error) {
     console.error('Error fetching navbar categories:', error);
     return [];
   }
-}
+ }
 
 export async function getCategoriesWithSubcategories(): Promise<PageCategory[]> {
   try {
     const snapshot = await getDocs(collection(db, 'pageCategories'));
     const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageCategory));
     
-    // Sort by navOrder first, then by order
-    return categories.sort((a, b) => {
-      const navOrderA = a.navOrder ?? 999;
-      const navOrderB = b.navOrder ?? 999;
-      if (navOrderA !== navOrderB) return navOrderA - navOrderB;
-      return (a.order ?? 0) - (b.order ?? 0);
-    });
+    // Return categories as-is since we removed ordering
+    return categories;
   } catch (error) {
     console.error('Error fetching categories with subcategories:', error);
     return [];
@@ -476,8 +467,7 @@ export async function getSubcategories(parentCategoryId: string): Promise<PageCa
     
     // Return subcategories of the specified parent
     return categories
-      .filter(cat => cat.isActive && (cat as any).parentCategory === parentCategoryId)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .filter(cat => cat.isActive && (cat as any).parentCategory === parentCategoryId);
   } catch (error) {
     console.error('Error fetching subcategories:', error);
     return [];

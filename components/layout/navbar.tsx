@@ -302,8 +302,11 @@ export function Navbar() {
             
             {/* Dynamic Categories from Admin (Max 10) */}
             {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
-              const categorySlug = (category as any).slug || category.name.en.toLowerCase().replace(/\s+/g, '-');
+              // Only show categories that have subcategories (dropdown behavior)
               const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+              
+              // Skip categories without subcategories - they don't need to be in navbar
+              if (!hasSubcategories) return null;
               
               return (
                 <motion.div 
@@ -315,68 +318,100 @@ export function Navbar() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
                 >
-                  {hasSubcategories ? (
-                    <button 
-                      className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-1 text-base"
-                      onClick={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: !prev[category.id] }))}
+                  {/* Category Button (Always a dropdown trigger) */}
+                  <button 
+                    className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-1 text-base"
+                    onClick={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: !prev[category.id] }))}
+                  >
+                    <span className="relative">
+                      <TranslatableText>{category.name}</TranslatableText>
+                      <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+                    </span>
+                    <motion.div
+                      animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      <span className="relative">
-                        <TranslatableText>{category.name}</TranslatableText>
-                        <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                      </span>
-                      <motion.div
-                        animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </motion.div>
-                    </button>
-                  ) : (
-                    <Link 
-                      href={`/${categorySlug}`}
-                      className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base"
-                      style={{ textDecoration: 'none' }}
-                    >
-                      <span className="relative">
-                        <TranslatableText>{category.name}</TranslatableText>
-                        <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                      </span>
-                    </Link>
-                  )}
+                      <ChevronDown className="h-4 w-4" />
+                    </motion.div>
+                  </button>
                   
-                  {/* Subcategories Dropdown */}
-                  {hasSubcategories && (
-                    <AnimatePresence>
-                      {dynamicDropdownStates[category.id] && (
-                        <motion.div 
-                          className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-                          variants={dropdownVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="exit"
-                        >
-                          <div className="py-1">
-                            {categories
-                              .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
-                              .map((subcat) => {
-                                const subcatSlug = (subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-');
-                                return (
-                                  <Link 
-                                    key={subcat.id}
-                                    href={`/${subcatSlug}`}
-                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
-                                    style={{ textDecoration: 'none' }}
-                                    onClick={() => setDynamicDropdownStates({})}
-                                  >
+                  {/* Subcategories Dropdown with Links to Actual Pages */}
+                  <AnimatePresence>
+                    {dynamicDropdownStates[category.id] && (
+                      <motion.div 
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
+                        variants={dropdownVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                      >
+                        <div className="py-1">
+                          {/* First, show subcategories */}
+                          {categories
+                            .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
+                            .map((subcat) => {
+                              // Get pages for this subcategory
+                              const subcatPages = pages.filter(page => page.category === subcat.id && page.isPublished);
+                              
+                              return (
+                                <div key={subcat.id}>
+                                  {/* Subcategory header */}
+                                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
                                     <TranslatableText>{subcat.name}</TranslatableText>
-                                  </Link>
-                                );
-                              })}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  )}
+                                  </div>
+                                  
+                                  {/* Pages under this subcategory */}
+                                  {subcatPages.map((page) => (
+                                    <Link 
+                                      key={page.id}
+                                      href={`/citizen-services/${page.slug}`}
+                                      className="block px-6 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                                      style={{ textDecoration: 'none' }}
+                                      onClick={() => setDynamicDropdownStates({})}
+                                    >
+                                      <TranslatableText>{page.title}</TranslatableText>
+                                    </Link>
+                                  ))}
+                                  
+                                  {/* If no pages, show a message */}
+                                  {subcatPages.length === 0 && (
+                                    <div className="px-6 py-2 text-xs text-gray-400 italic">
+                                      <TranslatableText>{{ en: 'No pages yet', el: 'Δεν υπάρχουν σελίδες ακόμα' }}</TranslatableText>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          
+                          {/* Also show pages directly under the main category */}
+                          {(() => {
+                            const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
+                            if (categoryPages.length > 0) {
+                              return (
+                                <>
+                                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                                    <TranslatableText>{{ en: 'General Pages', el: 'Γενικές Σελίδες' }}</TranslatableText>
+                                  </div>
+                                  {categoryPages.map((page) => (
+                                    <Link 
+                                      key={page.id}
+                                      href={`/citizen-services/${page.slug}`}
+                                      className="block px-6 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                                      style={{ textDecoration: 'none' }}
+                                      onClick={() => setDynamicDropdownStates({})}
+                                    >
+                                      <TranslatableText>{page.title}</TranslatableText>
+                                    </Link>
+                                  ))}
+                                </>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               );
             })}
@@ -593,8 +628,11 @@ export function Navbar() {
                   
                   {/* Dynamic Categories in Mobile Menu (Max 10) */}
                   {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
-                    const categorySlug = (category as any).slug || category.name.en.toLowerCase().replace(/\s+/g, '-');
+                    // Only show categories that have subcategories (dropdown behavior)
                     const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+                    
+                    // Skip categories without subcategories - they don't need to be in navbar
+                    if (!hasSubcategories) return null;
                     
                     return (
                       <motion.div 
@@ -604,60 +642,93 @@ export function Navbar() {
                         initial="hidden" 
                         animate="visible"
                       >
-                        {hasSubcategories ? (
-                          <button 
-                            className="w-full text-left py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center justify-between"
-                            onClick={() => toggleDynamicDropdown(category.id)}
+                        {/* Category Button (Always a dropdown trigger) */}
+                        <button 
+                          className="w-full text-left py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center justify-between"
+                          onClick={() => toggleDynamicDropdown(category.id)}
+                        >
+                          <TranslatableText>{category.name}</TranslatableText>
+                          <motion.div
+                            animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
                           >
-                            <TranslatableText>{category.name}</TranslatableText>
-                            <motion.div
-                              animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <ChevronDown className="h-4 w-4" />
-                            </motion.div>
-                          </button>
-                        ) : (
-                          <Link 
-                            href={`/${categorySlug}`}
-                            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-                            style={{ textDecoration: 'none' }}
-                            onClick={() => setIsOpen(false)}
-                          >
-                            <TranslatableText>{category.name}</TranslatableText>
-                          </Link>
-                        )}
+                            <ChevronDown className="h-4 w-4" />
+                          </motion.div>
+                        </button>
                         
-                        {/* Subcategories in Mobile */}
-                        {hasSubcategories && (
-                          <AnimatePresence>
-                            {dynamicDropdownStates[category.id] && (
-                              <motion.div 
-                                className="ml-4 space-y-2"
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                transition={{ duration: 0.3 }}
-                              >
-                                {categories
-                                  .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
-                                  .map((subcat) => {
-                                    const subcatSlug = (subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-');
-                                    return (
-                                      <Link 
-                                        key={subcat.id}
-                                        href={`/${subcatSlug}`}
-                                        className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
-                                        onClick={() => setIsOpen(false)}
-                                      >
+                        {/* Subcategories and Pages in Mobile */}
+                        <AnimatePresence>
+                          {dynamicDropdownStates[category.id] && (
+                            <motion.div 
+                              className="ml-4 space-y-2"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
+                            >
+                              {/* First, show subcategories */}
+                              {categories
+                                .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
+                                .map((subcat) => {
+                                  // Get pages for this subcategory
+                                  const subcatPages = pages.filter(page => page.category === subcat.id && page.isPublished);
+                                  
+                                  return (
+                                    <div key={subcat.id}>
+                                      {/* Subcategory header */}
+                                      <div className="py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
                                         <TranslatableText>{subcat.name}</TranslatableText>
-                                      </Link>
-                                    );
-                                  })}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        )}
+                                      </div>
+                                      
+                                      {/* Pages under this subcategory */}
+                                      {subcatPages.map((page) => (
+                                        <Link 
+                                          key={page.id}
+                                          href={`/citizen-services/${page.slug}`}
+                                          className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors ml-4"
+                                          onClick={() => setIsOpen(false)}
+                                        >
+                                          <TranslatableText>{page.title}</TranslatableText>
+                                        </Link>
+                                      ))}
+                                      
+                                      {/* If no pages, show a message */}
+                                      {subcatPages.length === 0 && (
+                                        <div className="py-2 text-xs text-gray-400 italic ml-4">
+                                          <TranslatableText>{{ en: 'No pages yet', el: 'Δεν υπάρχουν σελίδες ακόμα' }}</TranslatableText>
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              
+                              {/* Also show pages directly under the main category */}
+                              {(() => {
+                                const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
+                                if (categoryPages.length > 0) {
+                                  return (
+                                    <>
+                                      <div className="py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                                        <TranslatableText>{{ en: 'General Pages', el: 'Γενικές Σελίδες' }}</TranslatableText>
+                                      </div>
+                                      {categoryPages.map((page) => (
+                                        <Link 
+                                          key={page.id}
+                                          href={`/citizen-services/${page.slug}`}
+                                          className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors ml-4"
+                                          onClick={() => setIsOpen(false)}
+                                        >
+                                          <TranslatableText>{page.title}</TranslatableText>
+                                        </Link>
+                                      ))}
+                                    </>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </motion.div>
                     );
                   })}

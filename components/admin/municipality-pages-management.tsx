@@ -17,18 +17,12 @@ import {
   Edit, 
   Trash2, 
   Calendar,
-  Building,
   User,
-  Users,
   FileText,
-  Heart,
   AlertCircle,
-  Settings,
   HandHeart,
   Briefcase,
-  Tag,
-  ArrowUp,
-  ArrowDown
+  Tag
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -38,9 +32,6 @@ import {
   deleteMunicipalityPage,
   MunicipalityPage,
   getPageCategories,
-  addPageCategory,
-  updatePageCategory,
-  deletePageCategory,
   PageCategory
 } from '@/lib/firestore';
 import { ImageUpload } from '@/components/ui/image-upload';
@@ -50,41 +41,7 @@ import { HeartbeatLoader } from '@/components/ui/heartbeat-loader';
 import { MunicipalityPageContent } from '@/components/municipality/municipality-page-content';
 import { useTranslation } from '@/hooks/useTranslation';
 
-const getCategoryIcon = (iconName: string) => {
-  switch (iconName) {
-    case 'building':
-      return <Building className="h-4 w-4" />;
-    case 'users':
-      return <Users className="h-4 w-4" />;
-    case 'settings':
-      return <Settings className="h-4 w-4" />;
-    case 'heart':
-      return <Heart className="h-4 w-4" />;
-    case 'tag':
-      return <Tag className="h-4 w-4" />;
-    default:
-      return <FileText className="h-4 w-4" />;
-  }
-};
 
-const getCategoryColor = (colorName: string) => {
-  switch (colorName) {
-    case 'blue':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'green':
-      return 'bg-green-100 text-green-800 border-green-200';
-    case 'purple':
-      return 'bg-purple-100 text-purple-800 border-purple-200';
-    case 'pink':
-      return 'bg-pink-100 text-pink-800 border-pink-200';
-    case 'orange':
-      return 'bg-orange-100 text-orange-800 border-orange-200';
-    case 'red':
-      return 'bg-red-100 text-red-800 border-red-200';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-200';
-  }
-};
 
 type LayoutType = 'layout1' | 'layout2' | 'layout3';
 
@@ -101,23 +58,7 @@ export function PagesManagement() {
   const { toast } = useToast();
   const { currentLang } = useTranslation();
 
-  const [showCategoriesDialog, setShowCategoriesDialog] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<PageCategory | null>(null);
-  const [categoryFormData, setCategoryFormData] = useState<{
-    name: { en: string; el: string };
-    description: { en: string; el: string };
-    icon: string;
-    color: string;
-    isActive: boolean;
-    order: number;
-  }>({
-    name: { en: '', el: '' },
-    description: { en: '', el: '' },
-    icon: 'file-text',
-    color: 'blue',
-    isActive: true,
-    order: 0,
-  });
+
   const [formData, setFormData] = useState<{
     slug: string;
     title: { en: string; el: string };
@@ -273,116 +214,15 @@ export function PagesManagement() {
   };
 
   // Category management functions
-  const resetCategoryForm = () => {
-    setCategoryFormData({
-      name: { en: '', el: '' },
-      description: { en: '', el: '' },
-      icon: 'file-text',
-      color: 'blue',
-      isActive: true,
-      order: categories.length,
-    });
-    setEditingCategory(null);
-  };
 
-  const handleEditCategory = (category: PageCategory) => {
-    setEditingCategory(category);
-    setCategoryFormData({
-      name: category.name,
-      description: category.description || { en: '', el: '' },
-      icon: category.icon || 'file-text',
-      color: category.color || 'blue',
-      isActive: category.isActive ?? true,
-      order: category.order || 0,
-    });
-    setShowCategoriesDialog(true);
-  };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
-      try {
-        await deletePageCategory(id);
-        toast({
-          title: "Success",
-          description: "Category deleted successfully",
-        });
-        loadPages(); // This will reload both pages and categories
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to delete category",
-          variant: "destructive",
-        });
-      }
-    }
-  };
 
-  const handleCategorySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingCategory) {
-        await updatePageCategory(editingCategory.id, categoryFormData);
-        toast({
-          title: "Success",
-          description: "Category updated successfully",
-        });
-      } else {
-        await addPageCategory(categoryFormData);
-        toast({
-          title: "Success",
-          description: "Category created successfully",
-        });
-      }
-      
-      setShowCategoriesDialog(false);
-      resetCategoryForm();
-      loadPages(); // This will reload both pages and categories
-    } catch (error) {
-      console.error('Error saving category:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save category",
-        variant: "destructive",
-      });
-    }
-  };
 
-  const moveCategory = async (id: string, direction: 'up' | 'down') => {
-    const currentIndex = categories.findIndex(cat => cat.id === id);
-    if (currentIndex === -1) return;
 
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= categories.length) return;
 
-    const updatedCategories = [...categories];
-    const [movedCategory] = updatedCategories.splice(currentIndex, 1);
-    updatedCategories.splice(newIndex, 0, movedCategory);
 
-    // Update order for all categories
-    const updatedCategoriesWithOrder = updatedCategories.map((cat, index) => ({
-      ...cat,
-      order: index
-    }));
 
-    try {
-      // Update all categories with new order
-      for (const category of updatedCategoriesWithOrder) {
-        await updatePageCategory(category.id, { order: category.order });
-      }
-      
-      setCategories(updatedCategoriesWithOrder);
-      toast({
-        title: "Success",
-        description: "Category order updated",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update category order",
-        variant: "destructive",
-      });
-    }
-  };
+
 
   if (loading) {
     return (
@@ -402,17 +242,7 @@ export function PagesManagement() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold">Municipality Pages</h2>
           <div className="flex gap-2">
-            <Button 
-              onClick={() => {
-                resetCategoryForm();
-                setShowCategoriesDialog(true);
-              }}
-              variant="outline"
-              className="border-primary text-primary hover:bg-primary hover:text-white"
-            >
-              <Tag className="h-4 w-4 mr-2" />
-              <TranslatableText>Manage Categories</TranslatableText>
-            </Button>
+
             <Button 
               onClick={() => {
                 if (selectedCategory !== 'all') {
@@ -455,9 +285,9 @@ export function PagesManagement() {
             <Card key={category.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${getCategoryColor(category.color || 'gray')}`}>
-                    {getCategoryIcon(category.icon || 'file-text')}
-                  </div>
+                                  <div className="p-2 rounded-lg bg-gray-100 text-gray-600">
+                  <Tag className="h-5 w-5" />
+                </div>
                   <div>
                     <h3 className="font-semibold text-sm">
                       <TranslatableText>{category.name}</TranslatableText>
@@ -500,12 +330,40 @@ export function PagesManagement() {
               <SelectItem value="all">
                 <TranslatableText>{{ en: 'All categories', el: 'Όλες οι κατηγορίες' }}</TranslatableText>
               </SelectItem>
-              {/* Dynamic categories */}
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  <TranslatableText>{category.name}</TranslatableText>
-                </SelectItem>
-              ))}
+              {/* Dynamic categories with subcategories */}
+              {(() => {
+                // Organize categories hierarchically
+                const mainCategories = categories.filter(cat => !cat.parentCategory);
+                const subcategories = categories.filter(cat => cat.parentCategory);
+                
+                return (
+                  <>
+                    {/* Main categories */}
+                    {mainCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <span className="font-medium"><TranslatableText>{category.name}</TranslatableText></span>
+                      </SelectItem>
+                    ))}
+                    
+                    {/* Subcategories (indented) */}
+                    {subcategories.map((subcat) => {
+                      const parent = categories.find(cat => cat.id === subcat.parentCategory);
+                      return (
+                        <SelectItem key={subcat.id} value={subcat.id}>
+                          <div className="flex items-center">
+                            <span className="ml-4 text-gray-600">└─ <TranslatableText>{subcat.name}</TranslatableText></span>
+                            {parent && (
+                              <span className="text-xs text-gray-400 ml-2">
+                                (<TranslatableText>{{ en: 'under', el: 'υπό' }}</TranslatableText> <TranslatableText>{parent.name}</TranslatableText>)
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </>
+                );
+              })()}
             </SelectContent>
           </Select>
         </div>
@@ -556,15 +414,9 @@ export function PagesManagement() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4 flex-1">
                       <div className="flex items-center gap-2">
-                        <div className={`p-2 rounded-lg ${getCategoryColor(
-                          categories.find(c => c.id === page.category)?.color || 
-                          'gray'
-                        )}`}>
-                          {getCategoryIcon(
-                            categories.find(c => c.id === page.category)?.icon || 
-                            'file-text'
-                          )}
-                        </div>
+                                        <div className="p-2 rounded-lg bg-gray-100 text-gray-600">
+                  <Tag className="h-5 w-5" />
+                </div>
                         <Badge variant="secondary" className="text-xs">
                           <TranslatableText>{getCategoryLabel(page.category)}</TranslatableText>
                         </Badge>
@@ -656,15 +508,42 @@ export function PagesManagement() {
                     {/* Greek: Επιλέξτε κατηγορία */}
                   </SelectTrigger>
                   <SelectContent className="bg-white border border-gray-200">
-                    {/* Dynamic categories */}
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center gap-2">
-                          {getCategoryIcon(category.icon || 'file-text')}
-                          <span><TranslatableText>{category.name}</TranslatableText></span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {/* Dynamic categories with subcategories */}
+                    {(() => {
+                      // Organize categories hierarchically
+                      const mainCategories = categories.filter(cat => !cat.parentCategory);
+                      const subcategories = categories.filter(cat => cat.parentCategory);
+                      
+                      return (
+                        <>
+                          {/* Main categories */}
+                          {mainCategories.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium"><TranslatableText>{category.name}</TranslatableText></span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          
+                          {/* Subcategories (indented) */}
+                          {subcategories.map((subcat) => {
+                            const parent = categories.find(cat => cat.id === subcat.parentCategory);
+                            return (
+                              <SelectItem key={subcat.id} value={subcat.id}>
+                                <div className="flex items-center gap-2">
+                                  <span className="ml-4 text-gray-600">└─ <TranslatableText>{subcat.name}</TranslatableText></span>
+                                  {parent && (
+                                    <span className="text-xs text-gray-400 ml-2">
+                                      (<TranslatableText>{{ en: 'under', el: 'υπό' }}</TranslatableText> <TranslatableText>{parent.name}</TranslatableText>)
+                                    </span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </>
+                      );
+                    })()}
                   </SelectContent>
                 </Select>
               </div>
@@ -871,14 +750,7 @@ export function PagesManagement() {
 
 
 
-      {/* Categories Management Dialog */}
-      <Dialog open={showCategoriesDialog} onOpenChange={setShowCategoriesDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {editingCategory ? 'Edit Category' : 'Manage Page Categories'}
-            </DialogTitle>
-          </DialogHeader>
+
           
           <div className="space-y-6">
             {/* Category Form */}
@@ -1086,103 +958,7 @@ export function PagesManagement() {
               </div>
             </form>
 
-            {/* Categories List */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-lg">Existing Categories</h3>
-              {categories.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Tag className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p><TranslatableText>No categories found. Create your first category above.</TranslatableText></p>
-                </div>
-              ) : (
-                categories.map((category, index) => {
-                  const colorClass = getCategoryColor(category.color || 'blue');
-                  
-                  return (
-                    <Card key={category.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-4">
-                            <div className="flex flex-col space-y-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => moveCategory(category.id, 'up')}
-                                disabled={index === 0}
-                                className="h-6 w-6 p-0"
-                              >
-                                <ArrowUp className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => moveCategory(category.id, 'down')}
-                                disabled={index === categories.length - 1}
-                                className="h-6 w-6 p-0"
-                              >
-                                <ArrowDown className="h-3 w-3" />
-                              </Button>
-                            </div>
-                            
-                            <div className={`p-2 rounded-lg ${colorClass}`}>
-                              {getCategoryIcon(category.icon || 'file-text')}
-                            </div>
-                            
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <h4 className="font-semibold"><TranslatableText>{category.name}</TranslatableText></h4>
-                                <Badge variant={category.isActive ? "default" : "secondary"}>
-                                  <TranslatableText>{category.isActive ? 'Active' : 'Inactive'}</TranslatableText>
-                                </Badge>
-                                <Badge variant="outline">
-                                  <TranslatableText>Order:</TranslatableText> {category.order}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-gray-600 mb-1">
-                                {category.description ? (
-                                  <TranslatableText>{category.description}</TranslatableText>
-                                ) : (
-                                  <TranslatableText>{{ en: 'No description', el: 'Δεν υπάρχει περιγραφή' }}</TranslatableText>
-                                )}
-                              </p>
-                              <div className="flex items-center space-x-2 text-xs text-gray-500">
-                                <span>
-                                  {currentLang === 'el' ? 'English' : 'Ελληνικά'}: {currentLang === 'el' ? (category.name.en || '') : (category.name.el || '')}
-                                </span>
-                                {category.description?.el && (
-                                  <span>• {currentLang === 'el' ? (category.description.en || '') : (category.description.el || '')}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditCategory(category)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteCategory(category.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 } 
