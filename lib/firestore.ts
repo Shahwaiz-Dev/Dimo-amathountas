@@ -474,7 +474,7 @@ export async function getSubcategories(parentCategoryId: string): Promise<PageCa
     
     // Return subcategories of the specified parent
     return categories
-      .filter(cat => cat.isActive && cat.parentCategory === parentCategoryId)
+      .filter(cat => cat.isActive && (cat as any).parentCategory === parentCategoryId)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   } catch (error) {
     console.error('Error fetching subcategories:', error);

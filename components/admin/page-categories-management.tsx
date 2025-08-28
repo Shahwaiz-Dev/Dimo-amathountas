@@ -134,9 +134,9 @@ export function PageCategoriesManagement() {
       isActive: category.isActive ?? true,
       order: category.order || 0,
       parentCategory: category.parentCategory || '',
-      showInNavbar: category.showInNavbar ?? false,
-      navOrder: category.navOrder || 0,
-      slug: category.slug || '',
+      showInNavbar: (category as any).showInNavbar ?? false,
+      navOrder: (category as any).navOrder || 0,
+      slug: (category as any).slug || '',
     });
     setIsDialogOpen(true);
   };

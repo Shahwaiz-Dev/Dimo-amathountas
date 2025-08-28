@@ -36,7 +36,7 @@ export function CategoryLanding({ categorySlug }: CategoryLandingProps) {
         // Get all categories to find the matching one
         const allCategories = await getPageCategories();
         const matchingCategory = allCategories.find(cat => 
-          cat.slug === categorySlug || 
+          (cat as any).slug === categorySlug || 
           cat.name.en.toLowerCase().replace(/\s+/g, '-') === categorySlug ||
           cat.name.el.toLowerCase().replace(/\s+/g, '-') === categorySlug
         );
@@ -146,7 +146,7 @@ export function CategoryLanding({ categorySlug }: CategoryLandingProps) {
                         <TranslatableText>{subcat.description}</TranslatableText>
                       </p>
                     )}
-                    <Link href={`/${subcat.slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}>
+                                         <Link href={`/${(subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}>
                       <Button variant="outline" className="w-full">
                         <TranslatableText>{{ en: 'View Subcategory', el: 'Προβολή Υποκατηγορίας' }}</TranslatableText>
                         <ChevronRight className="h-4 w-4 ml-2" />
