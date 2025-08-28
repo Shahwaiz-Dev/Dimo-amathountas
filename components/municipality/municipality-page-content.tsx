@@ -7,33 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, MapPin, User, Users, FileText, Building, Heart } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getAllMunicipalityPages } from '@/lib/firestore';
+import { getAllMunicipalityPages, MunicipalityPage } from '@/lib/firestore';
 import Image from 'next/image';
 
-interface MunicipalityPageData {
-  id: string;
-  slug: string;
-  title: {
-    en: string;
-    el: string;
-  };
-  content: {
-    en: string;
-    el: string;
-  };
-  excerpt?: {
-    en: string;
-    el: string;
-  };
-  imageUrl?: string;
-  category: string;
-  lastUpdated: Date;
-  isPublished: boolean;
-  layout?: 'layout1' | 'layout2' | 'layout3'; // Added layout property
-}
-
 interface MunicipalityPageContentProps {
-  pageData?: MunicipalityPageData;
+  pageData?: MunicipalityPage;
 }
 
 const getPageIcon = (slug: string) => {
@@ -79,7 +57,7 @@ const getCategoryLabel = (category: string) => {
 
 export function MunicipalityPageContent({ pageData }: MunicipalityPageContentProps) {
   const { currentLang } = useTranslation();
-  const [relatedPages, setRelatedPages] = useState<MunicipalityPageData[]>([]);
+  const [relatedPages, setRelatedPages] = useState<MunicipalityPage[]>([]);
   
   const getBilingualContent = (content: { en: string; el: string }) => {
     return currentLang === 'el' ? content.el : content.en;
@@ -129,7 +107,7 @@ export function MunicipalityPageContent({ pageData }: MunicipalityPageContentPro
   const categoryLabel = getCategoryLabel(pageData.category);
 
   // Function to get the correct route for a page based on its category
-  const getPageRoute = (page: MunicipalityPageData) => {
+  const getPageRoute = (page: MunicipalityPage) => {
     switch (page.category) {
       case 'municipality':
         return `/municipality/${page.slug}`;
