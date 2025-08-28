@@ -246,28 +246,47 @@ export function ImageUpload({
 
         {/* Image Preview */}
         {preview && (
-          <Card className="max-w-md">
+          <Card className={`${aspectRatio === 9/16 ? 'max-w-xs' : 'max-w-md'}`}>
             <CardContent className="p-4">
               <div className="relative">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-48 object-cover rounded-lg"
-                  onError={() => setPreview(null)}
-                />
+                {aspectRatio === 9/16 ? (
+                  <div className="aspect-[9/16] w-full overflow-hidden rounded-lg bg-gray-100">
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                      onError={() => setPreview(null)}
+                    />
+                    {/* Portrait cropping guide overlay */}
+                    <div className="absolute inset-0 border-2 border-dashed border-white/50 rounded-lg pointer-events-none">
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white/70 text-xs font-medium bg-black/30 px-2 py-1 rounded">
+                        9:16
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg"
+                    onError={() => setPreview(null)}
+                  />
+                )}
                 <Button
                   type="button"
                   variant="destructive"
                   size="sm"
                   onClick={handleRemoveImage}
                   disabled={disabled || uploading}
-                  className="absolute top-2 right-2 h-8 w-8 p-0"
+                  className="absolute top-2 right-2 h-8 w-8 p-0 z-10"
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
               <div className="mt-2 text-sm text-gray-600">
-                <TranslatableText>Image Preview</TranslatableText>
+                <TranslatableText>
+                  {aspectRatio === 9/16 ? 'Portrait Preview (9:16)' : 'Image Preview'}
+                </TranslatableText>
               </div>
             </CardContent>
           </Card>
