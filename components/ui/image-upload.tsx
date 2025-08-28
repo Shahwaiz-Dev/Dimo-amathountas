@@ -131,6 +131,10 @@ export function ImageUpload({
       if (aspectRatio > 1) {
         return `Landscape (${Math.round(aspectRatio * 100) / 100}:1)`;
       } else if (aspectRatio < 1) {
+        // For portrait ratios like 9:16, show the proper format
+        if (aspectRatio === 9/16) {
+          return 'Portrait (9:16)';
+        }
         return `Portrait (1:${Math.round((1 / aspectRatio) * 100) / 100})`;
       } else {
         return 'Square (1:1)';

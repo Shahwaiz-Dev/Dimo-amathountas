@@ -700,19 +700,27 @@ export function PagesManagement() {
                   onClick={() => setFormData({ ...formData, layout: 'layout3' })}
                 >
                   <div className="text-center mb-3">
-                    <div className="w-full h-6 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-full h-2 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-full h-2 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-full h-2 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-full h-2 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-full h-2 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-full h-2 bg-gray-300 rounded mb-2"></div>
-                    <div className="w-full h-2 bg-gray-300 rounded"></div>
+                    <div className="inline-block">
+                      <div className="aspect-[9/16] w-16 bg-gray-300 rounded mb-2 relative overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-8 h-8 bg-gray-400 rounded-full"></div>
+                        </div>
+                        <div className="absolute bottom-1 left-1 right-1">
+                          <div className="w-full h-1 bg-gray-400 rounded"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-full h-1 bg-gray-300 rounded mb-1"></div>
+                    <div className="w-3/4 h-1 bg-gray-300 rounded mb-1 mx-auto"></div>
+                    <div className="w-full h-1 bg-gray-300 rounded mb-1"></div>
+                    <div className="w-5/6 h-1 bg-gray-300 rounded mb-1 mx-auto"></div>
+                    <div className="w-full h-1 bg-gray-300 rounded mb-1"></div>
+                    <div className="w-4/5 h-1 bg-gray-300 rounded mx-auto"></div>
                   </div>
                   <div className="text-center">
                     <h4 className="font-semibold text-sm">Layout 3</h4>
-                    <p className="text-xs text-gray-500">Minimal Layout</p>
-                    <p className="text-xs text-gray-400 mt-1">Image Banner + Content</p>
+                    <p className="text-xs text-gray-500">Portrait Minimal</p>
+                    <p className="text-xs text-gray-400 mt-1">9:16 Image + Content</p>
                   </div>
                 </div>
 
@@ -727,20 +735,30 @@ export function PagesManagement() {
                 >
                   <div className="text-center mb-3">
                     <div className="flex gap-2 mb-2">
-                      <div className="w-1/2 h-8 bg-gray-300 rounded"></div>
-                      <div className="w-1/2 h-8 bg-gray-300 rounded"></div>
+                      <div className="aspect-[9/16] w-8 bg-gray-300 rounded relative overflow-hidden">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-4 h-4 bg-gray-400 rounded-full"></div>
+                        </div>
+                      </div>
+                      <div className="flex-1 flex flex-col justify-center">
+                        <div className="w-full h-1 bg-gray-300 rounded mb-1"></div>
+                        <div className="w-3/4 h-1 bg-gray-300 rounded mb-1"></div>
+                        <div className="w-full h-1 bg-gray-300 rounded mb-1"></div>
+                        <div className="w-5/6 h-1 bg-gray-300 rounded mb-1"></div>
+                        <div className="w-2/3 h-1 bg-gray-300 rounded"></div>
+                      </div>
                     </div>
-                    <div className="w-1/2 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
-                    <div className="w-3/4 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
-                    <div className="w-1/2 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
-                    <div className="w-5/6 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
-                    <div className="w-1/2 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
-                    <div className="w-3/4 h-2 bg-gray-300 rounded mx-auto"></div>
+                    <div className="w-1/2 h-1 bg-gray-300 rounded mb-1 mx-auto"></div>
+                    <div className="w-3/4 h-1 bg-gray-300 rounded mb-1 mx-auto"></div>
+                    <div className="w-1/2 h-1 bg-gray-300 rounded mb-1 mx-auto"></div>
+                    <div className="w-5/6 h-1 bg-gray-300 rounded mb-1 mx-auto"></div>
+                    <div className="w-1/2 h-1 bg-gray-300 rounded mb-1 mx-auto"></div>
+                    <div className="w-3/4 h-1 bg-gray-300 rounded mx-auto"></div>
                   </div>
                   <div className="text-center">
                     <h4 className="font-semibold text-sm">Layout 4</h4>
-                    <p className="text-xs text-gray-500">Split Layout</p>
-                    <p className="text-xs text-gray-400 mt-1">50% Image + 50% Content</p>
+                    <p className="text-xs text-gray-500">Portrait Split</p>
+                    <p className="text-xs text-gray-400 mt-1">9:16 Image + Content</p>
                   </div>
                 </div>
               </div>
@@ -753,6 +771,13 @@ export function PagesManagement() {
                 <ImageUpload
                   value={formData.imageUrl}
                   onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                  aspectRatio={(formData.layout === 'layout3' || formData.layout === 'layout4') ? (9/16) : undefined}
+                  recommendedDimensions={
+                    (formData.layout === 'layout3' || formData.layout === 'layout4')
+                      ? { width: 1080, height: 1920 }
+                      : undefined
+                  }
+                  label={`Featured Image ${(formData.layout === 'layout3' || formData.layout === 'layout4') ? '(Portrait 9:16)' : ''}`}
                 />
               </div>
             </div>
