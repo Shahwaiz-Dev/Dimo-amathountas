@@ -445,8 +445,6 @@ export async function getNavbarCategories(): Promise<PageCategory[]> {
         const isActive = cat.isActive !== false; // Default to true if undefined
         const showInNavbar = cat.showInNavbar === true; // Must be explicitly true
         
-        console.log(`Category ${cat.name?.en}: isActive=${isActive}, showInNavbar=${showInNavbar}, hasProperty=${cat.hasOwnProperty('showInNavbar')}`);
-        
         return isActive && showInNavbar;
       })
       .slice(0, 10); // Enforce maximum of 10 navbar categories
