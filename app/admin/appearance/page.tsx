@@ -167,11 +167,11 @@ export default function AppearancePage() {
             <TranslatableText>{{ en: "Customize the visual appearance of your website", el: "Προσαρμόστε την οπτική εμφάνιση της ιστοσελίδας σας" }}</TranslatableText>
           </p>
           <p className="text-sm text-blue-600">
-            <TranslatableText>{{ en: "💡 New: Smart image cropping helps ensure your images look perfect in every layout!", el: "💡 Νέα: Η έξυπνη κοπή εικόνων βοηθά να φαίνονται οι εικόνες σας τέλεια σε κάθε διάταξη!" }}</TranslatableText>
+            <TranslatableText>{{ en: "💡 New: Smart image guidelines help ensure your images look perfect in every layout!", el: "💡 Νέα: Οι έξυπνες οδηγίες εικόνων βοηθούν να φαίνονται οι εικόνες σας τέλεια σε κάθε διάταξη!" }}</TranslatableText>
           </p>
           <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm text-green-700">
-              <TranslatableText>{{ en: "✨ How it works: Upload any image → Crop to fit the layout → Get perfect results every time!", el: "✨ Πώς λειτουργεί: Ανεβάστε οποιαδήποτε εικόνα → Κόψτε για να ταιριάξει στη διάταξη → Λάβετε τέλεια αποτελέσματα κάθε φορά!" }}</TranslatableText>
+              <TranslatableText>{{ en: "✨ How it works: Upload any image → System provides guidelines → Images automatically fit the layout!", el: "✨ Πώς λειτουργεί: Ανεβάστε οποιαδήποτε εικόνα → Το σύστημα παρέχει οδηγίες → Οι εικόνες ταιριάζουν αυτόματα στη διάταξη!" }}</TranslatableText>
             </p>
           </div>
         </div>
@@ -206,7 +206,6 @@ export default function AppearancePage() {
                 label=""
                 aspectRatio={16/9}
                 recommendedDimensions={{ width: 1920, height: 1080 }}
-                cropMode="auto"
               />
             </div>
 
@@ -222,7 +221,6 @@ export default function AppearancePage() {
                 label=""
                 aspectRatio={16/9}
                 recommendedDimensions={{ width: 1920, height: 1080 }}
-                cropMode="auto"
               />
             </div>
           </CardContent>
@@ -253,7 +251,6 @@ export default function AppearancePage() {
               label=""
               aspectRatio={4/3}
               recommendedDimensions={{ width: 1200, height: 900 }}
-              cropMode="auto"
             />
           </CardContent>
         </Card>
@@ -283,7 +280,6 @@ export default function AppearancePage() {
               label=""
               aspectRatio={16/9}
               recommendedDimensions={{ width: 1200, height: 675 }}
-              cropMode="auto"
             />
           </CardContent>
         </Card>
@@ -312,8 +308,7 @@ export default function AppearancePage() {
               folder="museums-section"
               label=""
               aspectRatio={16/9}
-              recommendedDimensions={{ width: 1200, height: 675 }}
-              cropMode="auto"
+              recommendedDimensions={{ width: 1200, height: 1080 }}
             />
           </CardContent>
         </Card>
