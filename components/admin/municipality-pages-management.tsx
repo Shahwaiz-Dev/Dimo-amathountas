@@ -312,7 +312,9 @@ export function PagesManagement() {
 
         {/* Category Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {getCategoryStats().map((category) => (
+          {getCategoryStats()
+            .filter(category => selectedCategory === 'all' || category.id === selectedCategory)
+            .map((category) => (
             <Card key={category.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">

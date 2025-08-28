@@ -197,10 +197,10 @@ export function Navbar() {
       </motion.div>
       
       {/* Main Navbar */}
-      <nav className="bg-white shadow border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4">
+      <nav className="bg-white shadow border-b border-border sticky top-0 z-50 overflow-visible">
+        <div className="container mx-auto px-4 overflow-visible">
           {/* Three-Column Layout */}
-          <div className="grid grid-cols-12 gap-4 items-center h-24">
+          <div className="grid grid-cols-12 gap-4 items-center h-24 overflow-visible">
             
             {/* Left Column - Logo & Branding (3 columns on desktop, 8 columns on mobile) */}
           <motion.div 
@@ -233,8 +233,8 @@ export function Navbar() {
           </motion.div>
 
             {/* Center Column - Navigation Links (6 columns) */}
-            <div className="hidden lg:block col-span-6">
-              <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 max-h-20 overflow-hidden">
+            <div className="hidden lg:block col-span-6 relative">
+              <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 max-h-20 overflow-visible relative">
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -351,7 +351,7 @@ export function Navbar() {
               return (
                 <motion.div 
                   key={category.id}
-                  className="relative group"
+                  className="relative group z-10"
                   onMouseEnter={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: true }))}
                   onMouseLeave={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: false }))}
                   initial={{ opacity: 0, y: -10 }}
@@ -379,12 +379,17 @@ export function Navbar() {
                   <AnimatePresence>
                     {dynamicDropdownStates[category.id] && (
                       <motion.div 
-                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-[9999]"
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-xl border border-gray-200 z-[99999]"
                         variants={dropdownVariants}
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        style={{ zIndex: 9999 }}
+                        style={{ 
+                          zIndex: 99999, 
+                          position: 'absolute',
+                          backgroundColor: 'white',
+                          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                        }}
                       >
                         <div className="py-1">
                           {/* First, show subcategories */}
