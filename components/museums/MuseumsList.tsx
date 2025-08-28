@@ -132,11 +132,11 @@ export function MuseumsList({ museums }: { museums: Museum[] }) {
           >
             <Card className="bg-white hover:shadow-lg transition-all duration-300 border border-gray-200 group">
               {museum.imageUrl && (
-                <div className="aspect-video">
+                <div className="aspect-video bg-gray-100 flex items-center justify-center">
                   <Image
                     src={museum.imageUrl}
                     alt={getLocalizedText(museum.title)}
-                    className="w-full h-full object-cover transition-transform duration-300"
+                    className="max-w-full max-h-full object-contain transition-transform duration-300"
                     width={600}
                     height={338}
                     sizes="(max-width: 768px) 100vw, 33vw"

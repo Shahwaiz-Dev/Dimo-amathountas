@@ -72,18 +72,20 @@ const NewsItem = memo(({ item, currentLang, getLocalizedText, index }: {
       }}
     >
       {item.imageUrl ? (
-        <motion.img
-          src={item.imageUrl}
-          alt={title}
-          className={`h-56 w-full object-cover ${gpuAccelerationClasses.gpu}`}
-          loading="lazy"
-          decoding="async"
-          whileHover={{ scale: 1.05 }}
-          transition={{ 
-            ...optimizedAnimations.fast,
-            ...animationPerformance.getReducedMotionConfig()
-          }}
-        />
+        <div className="relative h-56 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+          <motion.img
+            src={item.imageUrl}
+            alt={title}
+            className={`max-h-full max-w-full object-contain ${gpuAccelerationClasses.gpu}`}
+            loading="lazy"
+            decoding="async"
+            whileHover={{ scale: 1.02 }}
+            transition={{
+              ...optimizedAnimations.fast,
+              ...animationPerformance.getReducedMotionConfig()
+            }}
+          />
+        </div>
       ) : (
         <motion.div 
           className={`flex items-center justify-center bg-card h-56 w-full text-body/40 text-lg font-semibold select-none ${gpuAccelerationClasses.gpu}`}

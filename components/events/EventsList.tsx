@@ -46,13 +46,15 @@ const EventItem = memo(({ item, currentLang, getLocalizedText }: {
         </span>
       )}
       {item.imageUrl && (
-        <img
-          src={item.imageUrl}
-          alt={title}
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          loading="lazy"
-          decoding="async"
-        />
+        <div className="absolute inset-0 w-full h-full z-0 flex items-center justify-center bg-gray-200">
+          <img
+            src={item.imageUrl}
+            alt={title}
+            className="max-w-full max-h-full object-contain"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
       )}
       <div className="absolute inset-0 bg-black/60 z-10" />
       <div className="relative z-20 flex flex-col h-full justify-between p-6">
