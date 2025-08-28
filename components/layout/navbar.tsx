@@ -392,68 +392,95 @@ export function Navbar() {
                         }}
                       >
                         <div className="py-1">
-                          {/* First, show subcategories */}
+                          {/* First, show pages directly under the main category (without heading) */}
+                          {(() => {
+                            const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
+                            return categoryPages.map((page) => (
+                              <Link 
+                                key={page.id}
+                                href={`/citizen-services/${page.slug}`}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                                style={{ textDecoration: 'none' }}
+                                onClick={() => setDynamicDropdownStates({})}
+                              >
+                                <TranslatableText>{page.title}</TranslatableText>
+                              </Link>
+                            ));
+                          })()}
+                          
+                          {/* Add separator if there are both category pages and subcategories */}
+                          {(() => {
+                            const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
+                            const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+                            if (categoryPages.length > 0 && hasSubcategories) {
+                              return <div className="border-t border-gray-100 my-1"></div>;
+                            }
+                            return null;
+                          })()}
+                          
+                          {/* Then show subcategories as expandable dropdown items */}
                           {categories
                             .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
                             .map((subcat) => {
                               // Get pages for this subcategory
                               const subcatPages = pages.filter(page => page.category === subcat.id && page.isPublished);
+                              const subcatDropdownKey = `${category.id}-${subcat.id}`;
                               
                               return (
-                                <div key={subcat.id}>
-                                  {/* Subcategory header */}
-                                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                                <div key={subcat.id} className="relative group/subcat">
+                                  {/* Subcategory dropdown button */}
+                                  <button 
+                                    className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors flex items-center justify-between"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setDynamicDropdownStates(prev => ({ 
+                                        ...prev, 
+                                        [subcatDropdownKey]: !prev[subcatDropdownKey] 
+                                      }));
+                                    }}
+                                  >
                                     <TranslatableText>{subcat.name}</TranslatableText>
-                                  </div>
+                                    <motion.div
+                                      animate={{ rotate: dynamicDropdownStates[subcatDropdownKey] ? 180 : 0 }}
+                                      transition={{ duration: 0.2 }}
+                                    >
+                                      <ChevronDown className="h-3 w-3" />
+                                    </motion.div>
+                                  </button>
                                   
-                                  {/* Pages under this subcategory */}
-                                  {subcatPages.map((page) => (
+                                  {/* Subcategory pages dropdown */}
+                                  <AnimatePresence>
+                                    {dynamicDropdownStates[subcatDropdownKey] && (
+                                      <motion.div 
+                                        className="ml-4 border-l border-gray-200 pl-2"
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                      >
+                                        {subcatPages.length > 0 ? (
+                                          subcatPages.map((page) => (
                                     <Link 
                                       key={page.id}
                                       href={`/citizen-services/${page.slug}`}
-                                      className="block px-6 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                                              className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
                                       style={{ textDecoration: 'none' }}
                                       onClick={() => setDynamicDropdownStates({})}
                                     >
                                       <TranslatableText>{page.title}</TranslatableText>
                                     </Link>
-                                  ))}
-                                  
-                                  {/* If no pages, show a message */}
-                                  {subcatPages.length === 0 && (
-                                    <div className="px-6 py-2 text-xs text-gray-400 italic">
+                                          ))
+                                        ) : (
+                                          <div className="px-4 py-2 text-xs text-gray-400 italic">
                                       <TranslatableText>{{ en: 'No pages yet', el: 'Δεν υπάρχουν σελίδες ακόμα' }}</TranslatableText>
                                     </div>
                                   )}
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </div>
                               );
                             })}
-                          
-                          {/* Also show pages directly under the main category */}
-                          {(() => {
-                            const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
-                            if (categoryPages.length > 0) {
-                              return (
-                                <>
-                                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
-                                    <TranslatableText>{{ en: 'General Pages', el: 'Γενικές Σελίδες' }}</TranslatableText>
-                                  </div>
-                                  {categoryPages.map((page) => (
-                                    <Link 
-                                      key={page.id}
-                                      href={`/citizen-services/${page.slug}`}
-                                      className="block px-6 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
-                                      style={{ textDecoration: 'none' }}
-                                      onClick={() => setDynamicDropdownStates({})}
-                                    >
-                                      <TranslatableText>{page.title}</TranslatableText>
-                                    </Link>
-                                  ))}
-                                </>
-                              );
-                            }
-                            return null;
-                          })()}
                         </div>
                       </motion.div>
                     )}
@@ -710,66 +737,93 @@ export function Navbar() {
                               exit={{ opacity: 0, height: 0 }}
                               transition={{ duration: 0.3 }}
                             >
-                              {/* First, show subcategories */}
+                              {/* First, show pages directly under the main category (without heading) */}
+                              {(() => {
+                                const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
+                                return categoryPages.map((page) => (
+                                  <Link 
+                                    key={page.id}
+                                    href={`/citizen-services/${page.slug}`}
+                                    className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+                                    onClick={() => setIsOpen(false)}
+                                  >
+                                    <TranslatableText>{page.title}</TranslatableText>
+                                  </Link>
+                                ));
+                              })()}
+                              
+                              {/* Add separator if there are both category pages and subcategories */}
+                              {(() => {
+                                const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
+                                const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+                                if (categoryPages.length > 0 && hasSubcategories) {
+                                  return <div className="border-t border-gray-100 my-2"></div>;
+                                }
+                                return null;
+                              })()}
+                              
+                              {/* Then show subcategories as expandable dropdown items */}
                               {categories
                                 .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
                                 .map((subcat) => {
                                   // Get pages for this subcategory
                                   const subcatPages = pages.filter(page => page.category === subcat.id && page.isPublished);
+                                  const subcatDropdownKey = `mobile-${category.id}-${subcat.id}`;
                                   
                                   return (
-                                    <div key={subcat.id}>
-                                      {/* Subcategory header */}
-                                      <div className="py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                                    <div key={subcat.id} className="space-y-1">
+                                      {/* Subcategory dropdown button */}
+                                      <button 
+                                        className="w-full text-left py-2 text-sm text-gray-700 hover:text-indigo-600 transition-colors flex items-center justify-between"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setDynamicDropdownStates(prev => ({ 
+                                            ...prev, 
+                                            [subcatDropdownKey]: !prev[subcatDropdownKey] 
+                                          }));
+                                        }}
+                                      >
                                         <TranslatableText>{subcat.name}</TranslatableText>
-                                      </div>
+                                        <motion.div
+                                          animate={{ rotate: dynamicDropdownStates[subcatDropdownKey] ? 180 : 0 }}
+                                          transition={{ duration: 0.2 }}
+                                        >
+                                          <ChevronDown className="h-3 w-3" />
+                                        </motion.div>
+                                      </button>
                                       
-                                      {/* Pages under this subcategory */}
-                                      {subcatPages.map((page) => (
+                                      {/* Subcategory pages dropdown */}
+                                      <AnimatePresence>
+                                        {dynamicDropdownStates[subcatDropdownKey] && (
+                                          <motion.div 
+                                            className="ml-4 border-l border-gray-200 pl-2 space-y-1"
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                          >
+                                            {subcatPages.length > 0 ? (
+                                              subcatPages.map((page) => (
                                         <Link 
                                           key={page.id}
                                           href={`/citizen-services/${page.slug}`}
-                                          className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors ml-4"
+                                                  className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
                                           onClick={() => setIsOpen(false)}
                                         >
                                           <TranslatableText>{page.title}</TranslatableText>
                                         </Link>
-                                      ))}
-                                      
-                                      {/* If no pages, show a message */}
-                                      {subcatPages.length === 0 && (
-                                        <div className="py-2 text-xs text-gray-400 italic ml-4">
+                                              ))
+                                            ) : (
+                                              <div className="py-2 text-xs text-gray-400 italic">
                                           <TranslatableText>{{ en: 'No pages yet', el: 'Δεν υπάρχουν σελίδες ακόμα' }}</TranslatableText>
                                         </div>
                                       )}
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
                                     </div>
                                   );
                                 })}
-                              
-                              {/* Also show pages directly under the main category */}
-                              {(() => {
-                                const categoryPages = pages.filter(page => page.category === category.id && page.isPublished);
-                                if (categoryPages.length > 0) {
-                                  return (
-                                    <>
-                                      <div className="py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
-                                        <TranslatableText>{{ en: 'General Pages', el: 'Γενικές Σελίδες' }}</TranslatableText>
-                                      </div>
-                                      {categoryPages.map((page) => (
-                                        <Link 
-                                          key={page.id}
-                                          href={`/citizen-services/${page.slug}`}
-                                          className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors ml-4"
-                                          onClick={() => setIsOpen(false)}
-                                        >
-                                          <TranslatableText>{page.title}</TranslatableText>
-                                        </Link>
-                                      ))}
-                                    </>
-                                  );
-                                }
-                                return null;
-                              })()}
                             </motion.div>
                           )}
                         </AnimatePresence>
