@@ -188,7 +188,7 @@ export function MuseumDetail({ museum, relatedMuseums }: MuseumDetailProps) {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 pb-6">
                   <Button 
                     className="bg-primary hover:bg-blue-600 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out" 
                     asChild
@@ -203,7 +203,7 @@ export function MuseumDetail({ museum, relatedMuseums }: MuseumDetailProps) {
                       variant="outline" 
                       className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300 ease-in-out"
                     >
-                      <MapPin className="h-5 w-5 mr-2" />
+                      <MapPin className="h-5 w-3 mr-2" />
                       <TranslatableText>Get Directions</TranslatableText>
                     </Button>
                   )}

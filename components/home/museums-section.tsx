@@ -265,7 +265,7 @@ export function MuseumsSection() {
           </>
         )}
         
-        <div className="text-center mt-8">
+        <div className="text-center mt-8 pb-8">
           <Button className="bg-primary hover:bg-blue-600 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out" asChild>
             <Link href="/museums">
               <TranslatableText>{{ en: "View All Museums", el: "Δείτε όλα τα μουσεία" }}</TranslatableText>
