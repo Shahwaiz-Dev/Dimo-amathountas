@@ -178,7 +178,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-card text-body shadow-lg border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-card text-body shadow-lg border-r border-border transform transition-transform duration-300 ease-in-out xl-custom:translate-x-0 xl-custom:static xl-custom:inset-0 flex flex-col",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Header */}
@@ -189,7 +189,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <Button
             variant="outline"
             size="sm"
-            className="border-primary text-primary hover:bg-primary hover:text-white lg:hidden"
+            className="border-primary text-primary hover:bg-primary hover:text-white xl-custom:hidden"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="h-4 w-4" />
@@ -323,7 +323,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <Button
               variant="outline"
               size="sm"
-              className="border-primary text-primary hover:bg-primary hover:text-white lg:hidden"
+              className="border-primary text-primary hover:bg-primary hover:text-white xl-custom:hidden"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-4 w-4" />

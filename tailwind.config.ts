@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
+        'xl-custom': '1100px',
         'xxl': '1300px',
       },
       fontFamily: {

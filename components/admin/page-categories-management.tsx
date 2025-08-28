@@ -70,6 +70,11 @@ export function PageCategoriesManagement() {
     color: string;
     isActive: boolean;
     order: number;
+    // New fields for enhanced category system
+    parentCategory?: string;
+    showInNavbar: boolean;
+    navOrder: number;
+    slug: string;
   }>({
     name: { en: '', el: '' },
     description: { en: '', el: '' },
@@ -77,6 +82,10 @@ export function PageCategoriesManagement() {
     color: 'blue',
     isActive: true,
     order: 0,
+    parentCategory: '',
+    showInNavbar: false,
+    navOrder: 0,
+    slug: '',
   });
 
   const loadCategories = useCallback(async () => {
@@ -107,6 +116,10 @@ export function PageCategoriesManagement() {
       color: 'blue',
       isActive: true,
       order: 0,
+      parentCategory: '',
+      showInNavbar: false,
+      navOrder: 0,
+      slug: '',
     });
     setEditingCategory(null);
   };
@@ -120,6 +133,10 @@ export function PageCategoriesManagement() {
       color: category.color || 'blue',
       isActive: category.isActive ?? true,
       order: category.order || 0,
+      parentCategory: category.parentCategory || '',
+      showInNavbar: category.showInNavbar ?? false,
+      navOrder: category.navOrder || 0,
+      slug: category.slug || '',
     });
     setIsDialogOpen(true);
   };
@@ -329,6 +346,16 @@ export function PageCategoriesManagement() {
                             <Badge variant="outline">
                               <TranslatableText>{{ en: 'Order', el: 'Σειρά' }}</TranslatableText>: {category.order}
                             </Badge>
+                            {category.showInNavbar && (
+                              <Badge variant="default" className="bg-green-100 text-green-600">
+                                <TranslatableText>{{ en: 'Navbar', el: 'Γραμμή Πλοήγησης' }}</TranslatableText>
+                              </Badge>
+                            )}
+                            {category.parentCategory && (
+                              <Badge variant="secondary">
+                                <TranslatableText>{{ en: 'Subcategory', el: 'Υποκατηγορία' }}</TranslatableText>
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-sm text-gray-600 mb-2">
                             {category.description ? (
@@ -343,6 +370,9 @@ export function PageCategoriesManagement() {
                             </span>
                             {category.description?.el && (
                               <span>• {currentLang === 'el' ? (category.description.en || '') : (category.description.el || '')}</span>
+                            )}
+                            {(category as any).slug && (
+                              <span>• Slug: {(category as any).slug}</span>
                             )}
                           </div>
                         </div>
@@ -530,6 +560,93 @@ export function PageCategoriesManagement() {
               <Label htmlFor="isActive" className="text-sm font-medium">
                 <TranslatableText>{{ en: 'Active', el: 'Ενεργή' }}</TranslatableText>
               </Label>
+            </div>
+
+            {/* Enhanced Category Settings */}
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">
+                <TranslatableText>{{ en: 'Advanced Settings', el: 'Προηγμένες Ρυθμίσεις' }}</TranslatableText>
+              </h3>
+              
+              {/* Parent Category */}
+              <div>
+                <Label htmlFor="parentCategory" className="text-sm font-medium">
+                  <TranslatableText>{{ en: 'Parent Category', el: 'Γονική Κατηγορία' }}</TranslatableText>
+                </Label>
+                <Select
+                  value={formData.parentCategory || ''}
+                  onValueChange={(value) => setFormData({ ...formData, parentCategory: value || undefined })}
+                >
+                  <SelectTrigger id="parentCategory" className="mt-1">
+                    <SelectValue placeholder={currentLang === 'el' ? 'Επιλέξτε γονική κατηγορία (προαιρετικό)' : 'Select parent category (optional)'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">
+                      <TranslatableText>{{ en: 'No Parent (Top Level)', el: 'Χωρίς Γονική (Επάνω Επίπεδο)' }}</TranslatableText>
+                    </SelectItem>
+                    {categories
+                      .filter(cat => cat.id !== editingCategory?.id && cat.isActive)
+                      .map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          <TranslatableText>{category.name}</TranslatableText>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">
+                  <TranslatableText>{{ en: 'Leave empty to create a top-level category', el: 'Αφήστε κενό για να δημιουργήσετε κατηγορία επάνω επιπέδου' }}</TranslatableText>
+                </p>
+              </div>
+
+              {/* Slug */}
+              <div>
+                <Label htmlFor="slug" className="text-sm font-medium">
+                  <TranslatableText>{{ en: 'URL Slug', el: 'URL Slug' }}</TranslatableText>
+                </Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  placeholder={currentLang === 'el' ? 'Εισάγετε το URL slug' : 'Enter URL slug'}
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  <TranslatableText>{{ en: 'URL-friendly version of the category name (e.g., "citizen-services")', el: 'Φιλικό προς URL έκδοση του ονόματος της κατηγορίας (π.χ., "υπηρεσίες-πολιτών")' }}</TranslatableText>
+                </p>
+              </div>
+
+              {/* Navbar Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="showInNavbar"
+                    checked={formData.showInNavbar}
+                    onCheckedChange={(checked) => setFormData({ ...formData, showInNavbar: checked })}
+                  />
+                  <Label htmlFor="showInNavbar" className="text-sm font-medium">
+                    <TranslatableText>{{ en: 'Show in Navbar', el: 'Εμφάνιση στη Γραμμή Πλοήγησης' }}</TranslatableText>
+                  </Label>
+                </div>
+                
+                <div>
+                  <Label htmlFor="navOrder" className="text-sm font-medium">
+                    <TranslatableText>{{ en: 'Navbar Order', el: 'Σειρά στη Γραμμή Πλοήγησης' }}</TranslatableText>
+                  </Label>
+                  <Input
+                    id="navOrder"
+                    type="number"
+                    value={formData.navOrder}
+                    onChange={(e) => setFormData({ ...formData, navOrder: parseInt(e.target.value) || 0 })}
+                    placeholder="0"
+                    className="mt-1"
+                    min="0"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    <TranslatableText>{{ en: 'Lower numbers appear first in navbar', el: 'Οι μικρότεροι αριθμοί εμφανίζονται πρώτοι στη γραμμή πλοήγησης' }}</TranslatableText>
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Form Actions */}

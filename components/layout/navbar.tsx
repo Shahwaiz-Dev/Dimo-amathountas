@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Search, Phone, Mail, Clock, Facebook, Instagram, ChevronDown } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { TranslatableText } from '@/components/translatable-content';
-import { getAllMunicipalityPages, MunicipalityPage, getPageCategories, PageCategory } from '@/lib/firestore';
+import { getAllMunicipalityPages, MunicipalityPage, getPageCategories, PageCategory, getNavbarCategories } from '@/lib/firestore';
 import { motion, AnimatePresence, easeOut } from 'framer-motion';
 
 // Add type definitions for Google Translate globals
@@ -82,8 +82,10 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [pages, setPages] = useState<MunicipalityPage[]>([]);
   const [categories, setCategories] = useState<PageCategory[]>([]);
+  const [navbarCategories, setNavbarCategories] = useState<PageCategory[]>([]);
   const [loadingPages, setLoadingPages] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingNavbarCategories, setLoadingNavbarCategories] = useState(true);
   const [isMunicipalityDropdownOpen, setIsMunicipalityDropdownOpen] = useState(false);
   const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
   const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
@@ -121,9 +123,22 @@ export function Navbar() {
     }
   };
 
+  const loadNavbarCategories = async () => {
+    try {
+      setLoadingNavbarCategories(true);
+      const fetchedNavbarCategories = await getNavbarCategories();
+      setNavbarCategories(fetchedNavbarCategories);
+    } catch (error) {
+      console.error('Error loading navbar categories:', error);
+    } finally {
+      setLoadingNavbarCategories(false);
+    }
+  };
+
   useEffect(() => {
     loadMunicipalityPages();
     loadCategories();
+    loadNavbarCategories();
   }, []);
 
   const handleCloseMenuAndSwitchLang = () => {
@@ -186,7 +201,7 @@ export function Navbar() {
           <span className="flex items-center gap-1"><Mail className="w-4 h-4 mr-1" />
             <a href="mailto:municipality@amathounta.org.cy" className="hover:underline">municipality@amathounta.org.cy</a>
           </span>
-          <span className="hidden lg:flex items-center gap-1 text-xs opacity-90">
+                          <span className="hidden xl-custom:flex items-center gap-1 text-xs opacity-90">
             {currentLang === 'el' ? 'Γραφείο Εξυπηρέτησης: 25864146' : 'Citizen Service: 25864146'}
           </span>
         </div>
@@ -239,7 +254,7 @@ export function Navbar() {
           </motion.div>
 
           {/* Center Section - Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
+                        <div className="hidden xl-custom:flex items-center space-x-6 absolute left-1/2 transform -translate-x-1/2">
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -305,6 +320,84 @@ export function Navbar() {
               </Link>
             </motion.div>
             
+            {/* Dynamic Categories from Admin */}
+            {!loadingNavbarCategories && navbarCategories.map((category, index) => {
+              const categorySlug = (category as any).slug || category.name.en.toLowerCase().replace(/\s+/g, '-');
+              const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+              
+              return (
+                <motion.div 
+                  key={category.id}
+                  className="relative group"
+                  onMouseEnter={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: true }))}
+                  onMouseLeave={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: false }))}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
+                >
+                  {hasSubcategories ? (
+                    <button 
+                      className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-1 text-base"
+                      onClick={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: !prev[category.id] }))}
+                    >
+                      <span className="relative">
+                        <TranslatableText>{category.name}</TranslatableText>
+                        <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+                      </span>
+                      <motion.div
+                        animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </motion.div>
+                    </button>
+                  ) : (
+                    <Link 
+                      href={`/${categorySlug}`}
+                      className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <span className="relative">
+                        <TranslatableText>{category.name}</TranslatableText>
+                        <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+                      </span>
+                    </Link>
+                  )}
+                  
+                  {/* Subcategories Dropdown */}
+                  {hasSubcategories && (
+                    <AnimatePresence>
+                      {dynamicDropdownStates[category.id] && (
+                        <motion.div 
+                          className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
+                          variants={dropdownVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                        >
+                          <div className="py-1">
+                            {categories
+                              .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
+                              .map((subcat) => (
+                                <Link 
+                                  key={subcat.id}
+                                  href={`/${(subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}
+                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                                  style={{ textDecoration: 'none' }}
+                                  onClick={() => setDynamicDropdownStates({})}
+                                >
+                                  <TranslatableText>{subcat.name}</TranslatableText>
+                                </Link>
+                              ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  )}
+                </motion.div>
+              );
+            })}
+
             {/* Municipality Dropdown */}
             <motion.div 
               className="relative group"
@@ -312,7 +405,7 @@ export function Navbar() {
               onMouseLeave={() => setIsMunicipalityDropdownOpen(false)}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
+              transition={{ duration: 0.6, delay: 0.8 + (navbarCategories.length * 0.1) }}
             >
               <button 
                 className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-1 text-base"
@@ -501,7 +594,7 @@ export function Navbar() {
             transition={{ duration: 0.6, delay: 1.0 }}
           >
             {/* Desktop Language Switcher */}
-            <div className="hidden lg:flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                              <div className="hidden xl-custom:flex items-center gap-1 bg-gray-100 rounded-lg p-1">
               <motion.button
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
                   currentLang === 'en' 
@@ -533,7 +626,7 @@ export function Navbar() {
             {/* Mobile Menu Button */}
             <motion.button
               onClick={() => setIsOpen(!isOpen)}
-              className="relative w-10 h-10 flex flex-col justify-center items-center group lg:hidden"
+              className="relative w-10 h-10 flex flex-col justify-center items-center group xl-custom:hidden"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -572,7 +665,7 @@ export function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div 
-            className="fixed inset-0 z-50 lg:hidden"
+            className="fixed inset-0 z-50 xl-custom:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -751,6 +844,74 @@ export function Navbar() {
                       <TranslatableText>Museums</TranslatableText>
                     </Link>
                   </motion.div>
+                  
+                  {/* Dynamic Categories in Mobile Menu */}
+                  {!loadingNavbarCategories && navbarCategories.map((category, index) => {
+                    const categorySlug = (category as any).slug || category.name.en.toLowerCase().replace(/\s+/g, '-');
+                    const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+                    
+                    return (
+                      <motion.div 
+                        key={category.id}
+                        custom={6 + index} 
+                        variants={menuItemVariants} 
+                        initial="hidden" 
+                        animate="visible"
+                      >
+                        {hasSubcategories ? (
+                          <button 
+                            className="w-full text-left py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center justify-between"
+                            onClick={() => toggleDynamicDropdown(category.id)}
+                          >
+                            <TranslatableText>{category.name}</TranslatableText>
+                            <motion.div
+                              animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ChevronDown className="h-4 w-4" />
+                            </motion.div>
+                          </button>
+                        ) : (
+                          <Link 
+                            href={`/${categorySlug}`}
+                            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+                            style={{ textDecoration: 'none' }}
+                            onClick={() => setIsOpen(false)}
+                          >
+                            <TranslatableText>{category.name}</TranslatableText>
+                          </Link>
+                        )}
+                        
+                        {/* Subcategories in Mobile */}
+                        {hasSubcategories && (
+                          <AnimatePresence>
+                            {dynamicDropdownStates[category.id] && (
+                              <motion.div 
+                                className="ml-4 space-y-2"
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                {categories
+                                  .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
+                                  .map((subcat) => (
+                                    <Link 
+                                      key={subcat.id}
+                                      href={`/${(subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}
+                                      className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+                                      onClick={() => setIsOpen(false)}
+                                    >
+                                      <TranslatableText>{subcat.name}</TranslatableText>
+                                    </Link>
+                                  ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        )}
+                      </motion.div>
+                    );
+                  })}
                   
                   {/* More Dropdown */}
                   <motion.div custom={6} variants={menuItemVariants} initial="hidden" animate="visible">
