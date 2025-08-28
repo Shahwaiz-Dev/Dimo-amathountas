@@ -265,7 +265,82 @@ export function MunicipalityPageContent({ pageData }: MunicipalityPageContentPro
     );
   }
 
-  // Default: Hero + Content
+  if (layout === 'layout4') {
+    // Split Layout: 50% Image + 50% Content
+    return (
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Left Side - Image */}
+          <div className="order-2 lg:order-1">
+            {pageData.imageUrl ? (
+              <div className="relative w-full h-96 lg:h-full min-h-[400px]">
+                <Image
+                  src={pageData.imageUrl}
+                  alt={getBilingualTitle(pageData.title)}
+                  fill
+                  className="object-cover rounded-lg"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                />
+              </div>
+            ) : (
+              <div className="w-full h-96 lg:h-full min-h-[400px] bg-gray-200 rounded-lg flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <div className="text-4xl mb-2">🖼️</div>
+                  <p className="text-sm">
+                    {currentLang === 'el' ? 'Δεν υπάρχει εικόνα' : 'No image available'}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Right Side - Content */}
+          <div className="order-1 lg:order-2">
+            <Card className="h-full">
+              <CardContent className="p-8">
+                <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
+                  {getBilingualTitle(pageData.title)}
+                </h1>
+                {pageData.excerpt && (
+                  <p className="text-lg text-muted-foreground mb-6">
+                    {getBilingualContent(pageData.excerpt)}
+                  </p>
+                )}
+                
+                {/* Page Info */}
+                <div className="flex items-center gap-4 mb-6 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      {new Date(pageData.lastUpdated).toLocaleDateString(
+                        currentLang === 'el' ? 'el-GR' : 'en-US',
+                        { year: 'numeric', month: 'short', day: 'numeric' }
+                      )}
+                    </span>
+                  </div>
+                  <Badge variant="secondary">
+                    {getBilingualTitle(categoryLabel)}
+                  </Badge>
+                </div>
+                
+                <Separator className="mb-6" />
+                
+                <div 
+                  className="prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{ 
+                    __html: getBilingualContent(pageData.content) 
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default: Hero + Content (Layout 1)
   return (
     <div className="max-w-4xl mx-auto">
       {/* Hero */}
