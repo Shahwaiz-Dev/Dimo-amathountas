@@ -14,6 +14,7 @@ import {
   PageCategory,
   MunicipalityPage 
 } from '@/lib/firestore';
+import { getPageRoute } from '@/lib/page-routes';
 import { TranslatableText } from '@/components/translatable-content';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -146,7 +147,7 @@ export function CategoryLanding({ categorySlug }: CategoryLandingProps) {
                         <TranslatableText>{subcat.description}</TranslatableText>
                       </p>
                     )}
-                                         <Link href={`/${(subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <Link href={`/${(subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}>
                       <Button variant="outline" className="w-full">
                         <TranslatableText>{{ en: 'View Subcategory', el: 'Προβολή Υποκατηγορίας' }}</TranslatableText>
                         <ChevronRight className="h-4 w-4 ml-2" />
@@ -199,7 +200,7 @@ export function CategoryLanding({ categorySlug }: CategoryLandingProps) {
                         <TranslatableText>{page.excerpt}</TranslatableText>
                       </p>
                     )}
-                    <Link href={`/${categorySlug}/${page.slug}`}>
+                    <Link href={getPageRoute(page)}>
                       <Button variant="outline" className="w-full">
                         <TranslatableText>{{ en: 'Read More', el: 'Διαβάστε Περισσότερα' }}</TranslatableText>
                         <ChevronRight className="h-4 w-4 ml-2" />
