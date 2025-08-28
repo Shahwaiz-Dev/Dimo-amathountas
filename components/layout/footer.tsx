@@ -52,7 +52,7 @@ export function Footer() {
               />
               <div>
                 <h3 className="text-xl font-bold">
-                  <TranslatableText>Agios Athanasios</TranslatableText>
+                  <TranslatableText>Dimos Amathountas</TranslatableText>
                 </h3>
                 <p className="text-slate-400 text-sm">
                   <TranslatableText>Municipality</TranslatableText>
@@ -62,7 +62,7 @@ export function Footer() {
             <p className="text-slate-300 mb-4">
               <TranslatableText>
                 Serving our community with dedication and excellence. 
-                Discover the beauty and history of Agios Athanasios.
+                Discover the beauty and history of Amathountas.
               </TranslatableText>
             </p>
             <div className="flex space-x-4">
@@ -170,7 +170,7 @@ export function Footer() {
               <div className="flex items-center text-slate-300">
                 <MapPin className="h-4 w-4 mr-2 flex-shrink-0 text-primary" />
                 <span className="text-sm">
-                  <TranslatableText>Agios Athanasios, Limassol, Cyprus</TranslatableText>
+                  <TranslatableText>Amathountas, Limassol, Cyprus</TranslatableText>
                 </span>
               </div>
               <div className="flex items-center text-slate-300">
@@ -198,7 +198,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-slate-700 mt-8 pt-8 text-center">
           <p className="text-slate-400 text-sm">
-            © {new Date().getFullYear()} <TranslatableText>Agios Athanasios Municipality</TranslatableText>. 
+            © {new Date().getFullYear()} <TranslatableText>Dimos Amathountas</TranslatableText>. 
             <TranslatableText>All rights reserved.</TranslatableText>
           </p>
         </div>

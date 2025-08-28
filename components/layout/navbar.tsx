@@ -224,7 +224,7 @@ export function Navbar() {
             </motion.div>
               <div className="hidden xs:block sm:block">
                 <div className="font-extrabold text-base sm:text-lg xl:text-xl text-heading leading-tight">
-                <TranslatableText>Agios Athanasios</TranslatableText>
+                <TranslatableText>Dimos Amathountas</TranslatableText>
               </div>
                 <div className="text-xs xl:text-sm text-gray-500">
                 <TranslatableText>Municipality</TranslatableText>

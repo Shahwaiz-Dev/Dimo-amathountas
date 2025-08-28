@@ -20,7 +20,7 @@ import { getHeroImages, getHeroImagesSync } from '@/lib/appearance-utils';
 const getDefaultHeroes = () => [
   {
     image: '/hero2.jpeg',
-    alt: 'Agios Athanasios',
+            alt: 'Amathountas',
     bg: '#fff',
     heading: { en: "There's Never A Dull Moment In Our Town", el: "Ποτέ δεν βαριέσαι στην πόλη μας" },
     text: {
@@ -33,11 +33,11 @@ const getDefaultHeroes = () => [
   },
   {
     image: '/hero2.jpeg',
-    alt: 'Agios Athanasios Municipality',
+            alt: 'Dimos Amathountas',
     bg: '#fff',
-    heading: { en: 'Hello! Welcome to the website of Agios Athanasios Municipality', el: 'Καλώς ήρθατε στην ιστοσελίδα του Δήμου Αγίου Αθανασίου' },
+          heading: { en: 'Hello! Welcome to the website of Dimos Amathountas', el: 'Καλώς ήρθατε στην ιστοσελίδα του Δήμου Αμαθούντα' },
     text: {
-      en: 'This website will allow you to learn more about the beautiful village of Agios Athanasios.',
+              en: 'This website will allow you to learn more about the beautiful village of Amathountas.',
       el: 'Αυτή η ιστοσελίδα θα σας επιτρέψει να μάθετε περισσότερα για το όμορφο χωριό του Αγίου Αθανασίου.'
     },
     button: { href: '/news', label: { en: "See What's New", el: 'Δείτε τα νέα' } },

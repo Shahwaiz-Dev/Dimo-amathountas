@@ -77,7 +77,7 @@ export default function ContactPage() {
                 transition={{ delay: 0.4, duration: 0.6 }}
               >
                 <iframe
-                  title="Agios Athanasios Location"
+                  title="Amathountas Location"
                   src="https://www.google.com/maps?q=Stavraetou+tou+Machaira+42,+4104+Agios+Athanasios&output=embed"
                   width="100%"
                   height="300"
@@ -112,7 +112,7 @@ export default function ContactPage() {
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
                 <strong><TranslatableContent title="Address:" content="" className="" /></strong>
-                <div><TranslatableContent title="" content={{ en: "Municipality – Abraham 4104, Agios Athanasios", el: "Δημαρχείο – Αβραάμ 4104, Άγιος Αθανάσιος" }} className="" /></div>
+                <div><TranslatableContent title="" content={{ en: "Municipality – Abraham 4104, Amathountas", el: "Δημαρχείο – Αβραάμ 4104, Αμαθούντα" }} className="" /></div>
               </motion.div>
               
               <motion.div

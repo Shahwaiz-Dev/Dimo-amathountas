@@ -13,12 +13,12 @@ import { CookieConsent } from '@/components/ui/cookie-consent';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Agios Athanasios Municipality',
-  description: 'Official website of Agios Athanasios Municipality',
-  keywords: 'municipality, government, services, Cyprus, Agios Athanasios',
-  authors: [{ name: 'Agios Athanasios Municipality' }],
-  creator: 'Agios Athanasios Municipality',
-  publisher: 'Agios Athanasios Municipality',
+  title: 'Dimos Amathountas',
+  description: 'Official website of Dimos Amathountas',
+  keywords: 'municipality, government, services, Cyprus, Amathountas',
+  authors: [{ name: 'Dimos Amathountas' }],
+  creator: 'Dimos Amathountas',
+  publisher: 'Dimos Amathountas',
   formatDetection: {
     email: false,
     address: false,
@@ -29,16 +29,16 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Agios Athanasios Municipality',
-    description: 'Official website of Agios Athanasios Municipality',
+    title: 'Dimos Amathountas',
+    description: 'Official website of Dimos Amathountas',
     url: 'https://amathounta.org.cy',
-    siteName: 'Agios Athanasios Municipality',
+    siteName: 'Dimos Amathountas',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Agios Athanasios Municipality',
+        alt: 'Dimos Amathountas',
       },
     ],
     locale: 'en_US',
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Agios Athanasios Municipality',
-    description: 'Official website of Agios Athanasios Municipality',
+    title: 'Dimos Amathountas',
+    description: 'Official website of Dimos Amathountas',
     images: ['/og-image.jpg'],
   },
   robots: {

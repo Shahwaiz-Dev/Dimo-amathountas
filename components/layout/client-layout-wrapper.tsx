@@ -30,7 +30,7 @@ export default function ClientLayoutWrapper({ children }: { children: React.Reac
     <>
       {showWelcome ? (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background">
-          <div className="text-lg md:text-xl font-semibold text-primary mb-4 text-center">Welcome to<br />Agios Athanasios</div>
+          <div className="text-lg md:text-xl font-semibold text-primary mb-4 text-center">Welcome to<br />Dimos Amathountas</div>
           <div className="w-40 h-1.5 bg-gray-200 rounded-full overflow-hidden mb-1">
             <div
               className="h-full bg-primary transition-all duration-1000"

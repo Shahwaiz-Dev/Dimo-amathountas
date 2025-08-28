@@ -82,7 +82,7 @@ export default function AboutPage() {
               >
                 <Image
                   src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
-                  alt="Agios Athanasios"
+                  alt="Amathountas"
                   width={400}
                   height={400}
                   className="rounded-2xl shadow-xl object-cover w-full max-w-xs md:max-w-sm lg:max-w-md"
@@ -103,7 +103,7 @@ export default function AboutPage() {
               >
                 <TranslatableContent 
                   title={{ en: "About Us", el: "Σχετικά με εμάς" }}
-                  content={{ en: "Welcome to Agios Athanasios! We are dedicated to serving our community with transparency, innovation, and care. Our municipality is committed to providing excellent services and fostering a vibrant, inclusive environment for all residents.", el: "Καλώς ήρθατε στον Άγιο Αθανάσιο! Είμαστε αφοσιωμένοι στην εξυπηρέτηση της κοινότητάς μας με διαφάνεια, καινοτομία και φροντίδα. Ο δήμος μας δεσμεύεται να παρέχει άριστες υπηρεσίες και να προάγει ένα ζωντανό, συμπεριληπτικό περιβάλλον για όλους τους κατοίκους." }}
+                  content={{ en: "Welcome to Amathountas! We are dedicated to serving our community with transparency, innovation, and care. Our municipality is committed to providing excellent services and fostering a vibrant, inclusive environment for all residents.", el: "Καλώς ήρθατε στον Άγιο Αθανάσιο! Είμαστε αφοσιωμένοι στην εξυπηρέτηση της κοινότητάς μας με διαφάνεια, καινοτομία και φροντίδα. Ο δήμος μας δεσμεύεται να παρέχει άριστες υπηρεσίες και να προάγει ένα ζωντανό, συμπεριληπτικό περιβάλλον για όλους τους κατοίκους." }}
                   className="mb-4"
                 />
               </motion.div>
