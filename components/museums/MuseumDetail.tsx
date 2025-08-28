@@ -198,15 +198,7 @@ export function MuseumDetail({ museum, relatedMuseums }: MuseumDetailProps) {
                     </Link>
                   </Button>
                   
-                  {location && (
-                    <Button 
-                      variant="outline" 
-                      className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300 ease-in-out"
-                    >
-                      <MapPin className="h-5 w-3 mr-2" />
-                      <TranslatableText>Get Directions</TranslatableText>
-                    </Button>
-                  )}
+
                 </div>
               </div>
             </div>
