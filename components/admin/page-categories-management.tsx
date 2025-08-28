@@ -176,10 +176,10 @@ export function PageCategoriesManagement() {
     }
     
     try {
-      // Prepare data for submission, converting 'none' to undefined for parentCategory
+      // Prepare data for submission, converting 'none' to null for parentCategory
       const submissionData = {
         ...formData,
-        parentCategory: formData.parentCategory === 'none' ? undefined : formData.parentCategory
+        parentCategory: formData.parentCategory === 'none' ? null : formData.parentCategory
       };
 
       console.log('Submitting data:', submissionData); // Debug log
