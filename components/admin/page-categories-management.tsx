@@ -71,7 +71,7 @@ export function PageCategoriesManagement() {
     isActive: boolean;
     order: number;
     // New fields for enhanced category system
-    parentCategory?: string;
+    parentCategory?: string | 'none';
     showInNavbar: boolean;
     navOrder: number;
     slug: string;
@@ -82,7 +82,7 @@ export function PageCategoriesManagement() {
     color: 'blue',
     isActive: true,
     order: 0,
-    parentCategory: '',
+    parentCategory: 'none',
     showInNavbar: false,
     navOrder: 0,
     slug: '',
@@ -116,7 +116,7 @@ export function PageCategoriesManagement() {
       color: 'blue',
       isActive: true,
       order: 0,
-      parentCategory: '',
+      parentCategory: 'none',
       showInNavbar: false,
       navOrder: 0,
       slug: '',
@@ -133,7 +133,7 @@ export function PageCategoriesManagement() {
       color: category.color || 'blue',
       isActive: category.isActive ?? true,
       order: category.order || 0,
-      parentCategory: category.parentCategory || '',
+      parentCategory: category.parentCategory || 'none',
       showInNavbar: (category as any).showInNavbar ?? false,
       navOrder: (category as any).navOrder || 0,
       slug: (category as any).slug || '',
@@ -164,14 +164,20 @@ export function PageCategoriesManagement() {
     e.preventDefault();
     
     try {
+      // Prepare data for submission, converting 'none' to undefined for parentCategory
+      const submissionData = {
+        ...formData,
+        parentCategory: formData.parentCategory === 'none' ? undefined : formData.parentCategory
+      };
+
       if (editingCategory) {
-        await updatePageCategory(editingCategory.id, formData);
+        await updatePageCategory(editingCategory.id, submissionData);
         toast({
           title: currentLang === 'el' ? "Επιτυχία" : "Success",
           description: currentLang === 'el' ? "Η κατηγορία ενημερώθηκε επιτυχώς" : "Category updated successfully",
         });
       } else {
-        await addPageCategory(formData);
+        await addPageCategory(submissionData);
         toast({
           title: currentLang === 'el' ? "Επιτυχία" : "Success",
           description: currentLang === 'el' ? "Η κατηγορία δημιουργήθηκε επιτυχώς" : "Category created successfully",
@@ -574,15 +580,15 @@ export function PageCategoriesManagement() {
                 <Label htmlFor="parentCategory" className="text-sm font-medium">
                   <TranslatableText>{{ en: 'Parent Category', el: 'Γονική Κατηγορία' }}</TranslatableText>
                 </Label>
-                <Select
-                  value={formData.parentCategory || ''}
-                  onValueChange={(value) => setFormData({ ...formData, parentCategory: value || undefined })}
-                >
+                                  <Select
+                    value={formData.parentCategory || 'none'}
+                    onValueChange={(value) => setFormData({ ...formData, parentCategory: value === 'none' ? undefined : value })}
+                  >
                   <SelectTrigger id="parentCategory" className="mt-1">
                     <SelectValue placeholder={currentLang === 'el' ? 'Επιλέξτε γονική κατηγορία (προαιρετικό)' : 'Select parent category (optional)'} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">
+                    <SelectItem value="none">
                       <TranslatableText>{{ en: 'No Parent (Top Level)', el: 'Χωρίς Γονική (Επάνω Επίπεδο)' }}</TranslatableText>
                     </SelectItem>
                     {categories

@@ -156,31 +156,30 @@ export function Navbar() {
     }));
   };
 
-  // Filter pages by category - use only dynamic categories
-  const municipalityPages = pages.filter(page => {
-    const category = categories.find(cat => cat.id === page.category);
-    return category && 
-           (category.name.en.toLowerCase().includes('municipality') || 
-            category.name.el.toLowerCase().includes('δήμος')) && 
-           page.isPublished;
-  });
-
-  // Get all other dynamic categories and their pages
-  const otherCategories = categories.filter(cat => {
-    const catNameEn = cat.name.en.toLowerCase();
-    const catNameEl = cat.name.el.toLowerCase();
-    return !catNameEn.includes('municipality') && 
-           !catNameEl.includes('δήμος');
-  });
-
-  // Group other dynamic pages by category
-  const otherPagesByCategory = otherCategories.map(category => ({
+  // Get all categories and their pages for dynamic navigation
+  const allCategoriesWithPages = categories.map(category => ({
     category,
     pages: pages.filter(page => page.category === category.id && page.isPublished)
   })).filter(group => group.pages.length > 0);
 
-  // Combine all pages for More dropdown (only dynamic)
-  const morePages = otherPagesByCategory.flatMap(group => group.pages);
+  // Get categories that should appear in navbar (excluding the main navbar categories)
+  const dropdownCategories = allCategoriesWithPages.filter(group => 
+    !navbarCategories.some(navCat => navCat.id === group.category.id)
+  );
+
+  // Get municipality-related categories (can be configured via admin)
+  const municipalityCategories = allCategoriesWithPages.filter(group => {
+    const catNameEn = group.category.name.en.toLowerCase();
+    const catNameEl = group.category.name.el.toLowerCase();
+    return (catNameEn.includes('municipality') || catNameEl.includes('δήμος') || 
+            catNameEn.includes('government') || catNameEl.includes('διοίκηση')) &&
+           group.pages.length > 0;
+  });
+
+  // Get other categories for the More dropdown
+  const moreCategories = dropdownCategories.filter(group => 
+    !municipalityCategories.some(muniCat => muniCat.category.id === group.category.id)
+  );
 
   return (
     <header className="w-full">
@@ -434,25 +433,25 @@ export function Navbar() {
                     exit="exit"
                   >
                     <div className="py-1">
-                      {loadingPages ? (
+                      {loadingPages || loadingCategories || loadingNavbarCategories ? (
                         <div className="px-4 py-2 text-sm text-gray-500">
                           Loading municipality pages...
                         </div>
-                      ) : municipalityPages.length > 0 ? (
-                        municipalityPages.map((page, index) => (
+                      ) : municipalityCategories.length > 0 ? (
+                        municipalityCategories.map((group, index) => (
                           <motion.div
-                            key={page.slug}
+                            key={group.category.id}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
                           >
                             <Link 
-                              href={`/municipality/${page.slug}`}
+                              href={`/municipality/${group.category.name.en.toLowerCase().replace(/\s+/g, '-')}`}
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 active:text-gray-700 focus:text-gray-700 transition-colors"
                               style={{ textDecoration: 'none' }}
                               onClick={() => setIsMunicipalityDropdownOpen(false)}
                             >
-                              {getLocalizedTitle(page.title)}
+                              {getLocalizedTitle(group.category.name)}
                             </Link>
                           </motion.div>
                         ))
@@ -503,23 +502,14 @@ export function Navbar() {
                     exit="exit"
                   >
                     <div className="py-1">
-                      {loadingPages || loadingCategories ? (
+                      {loadingPages || loadingCategories || loadingNavbarCategories ? (
                         <div className="px-4 py-2 text-sm text-gray-500">
                           Loading pages...
                         </div>
-                      ) : morePages.length > 0 ? (
+                      ) : moreCategories.length > 0 ? (
                         <div className="space-y-1">
-                          {/* Services Category */}
-                          {/* Removed hardcoded services pages */}
-
-                          {/* Citizen Services Category */}
-                          {/* Removed hardcoded citizen services pages */}
-
-                          {/* Civil Marriages Category */}
-                          {/* Removed hardcoded civil marriages pages */}
-
-                          {/* Other Dynamic Categories */}
-                          {otherPagesByCategory.map((group) => (
+                          {/* Dynamic Categories */}
+                          {moreCategories.map((group) => (
                             <div key={group.category.id} className="relative">
                               <div 
                                 className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors cursor-pointer"
@@ -769,25 +759,25 @@ export function Navbar() {
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.3 }}
                         >
-                          {loadingPages ? (
+                          {loadingPages || loadingCategories || loadingNavbarCategories ? (
                             <div className="py-2 text-sm text-gray-500">
                               Loading municipality pages...
                             </div>
-                          ) : municipalityPages.length > 0 ? (
-                            municipalityPages.map((page, index) => (
+                          ) : municipalityCategories.length > 0 ? (
+                            municipalityCategories.map((group, index) => (
                               <motion.div
-                                key={page.slug}
+                                key={group.category.id}
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.05 }}
                               >
                                 <Link 
-                                  href={`/municipality/${page.slug}`}
+                                  href={`/municipality/${group.category.name.en.toLowerCase().replace(/\s+/g, '-')}`}
                                   className="block py-2 text-sm text-gray-600 hover:text-indigo-600 active:text-gray-600 focus:text-gray-600 transition-colors"
                                   style={{ textDecoration: 'none' }}
                                   onClick={() => setIsOpen(false)}
                                 >
-                                  {getLocalizedTitle(page.title)}
+                                  {getLocalizedTitle(group.category.name)}
                                 </Link>
                               </motion.div>
                             ))
@@ -937,23 +927,14 @@ export function Navbar() {
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.3 }}
                         >
-                          {loadingPages ? (
+                          {loadingPages || loadingCategories || loadingNavbarCategories ? (
                             <div className="py-2 text-sm text-gray-500">
                               Loading pages...
                             </div>
-                          ) : morePages.length > 0 ? (
+                          ) : moreCategories.length > 0 ? (
                             <div className="space-y-2">
-                              {/* Services Category */}
-                              {/* Removed hardcoded services pages */}
-
-                              {/* Citizen Services Category */}
-                              {/* Removed hardcoded citizen services pages */}
-
-                              {/* Civil Marriages Category */}
-                              {/* Removed hardcoded civil marriages pages */}
-
                               {/* Dynamic Categories */}
-                              {otherPagesByCategory.map((group) => (
+                              {moreCategories.map((group) => (
                                 <div key={group.category.id}>
                                   <button 
                                     className="w-full text-left py-2 text-sm text-gray-600 hover:text-indigo-600 font-medium transition-colors flex items-center justify-between"
