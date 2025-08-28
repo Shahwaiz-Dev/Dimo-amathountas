@@ -747,7 +747,6 @@ export function PagesManagement() {
           </form>
         </DialogContent>
       </Dialog>
-
-
-
-
+    </div>
+  );
+}
