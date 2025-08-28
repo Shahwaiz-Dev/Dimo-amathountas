@@ -6,18 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { useToast } from '@/hooks/use-toast';
 import { TranslatableText } from '@/components/translatable-content';
-import { Palette, Image as ImageIcon, Save } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Palette, Image as ImageIcon, Save, GripVertical, X } from 'lucide-react';
+import { motion, Reorder } from 'framer-motion';
+import { AppearanceSettings } from '@/lib/appearance-utils';
 
-interface AppearanceSettings {
-  heroImages: {
-    image1: string;
-    image2: string;
-  };
-  exploreTownImage: string;
-  eventsSectionImage: string;
-  museumsSectionImage: string;
-}
+import { getAppearanceSettings } from '@/lib/appearance-utils';
 
 const defaultSettings: AppearanceSettings = {
   heroImages: {
@@ -27,6 +20,7 @@ const defaultSettings: AppearanceSettings = {
   exploreTownImage: '/hero2.jpeg',
   eventsSectionImage: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80',
   museumsSectionImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+  mainNavigationOrder: ['home', 'news', 'events', 'contact', 'museums'],
 };
 
 export default function AppearancePage() {
@@ -302,11 +296,75 @@ export default function AppearancePage() {
         </Card>
       </motion.div>
 
+      {/* Main Navigation Ordering */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.35 }}
+      >
+        <Card className="shadow-lg border-0">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <GripVertical className="w-5 h-5 text-purple-600" />
+              <TranslatableText>{{ en: "Main Navigation Order", el: "Σειρά Κύριας Πλοήγησης" }}</TranslatableText>
+            </CardTitle>
+            <p className="text-gray-600 text-sm">
+              <TranslatableText>{{ en: "Drag and drop to reorder the main navigation items. Changes will be reflected in the navbar.", el: "Σύρετε και αφήστε για να αλλάξετε τη σειρά των κύριων στοιχείων πλοήγησης. Οι αλλαγές θα εμφανιστούν στη γραμμή πλοήγησης." }}</TranslatableText>
+            </p>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                <TranslatableText>{{ en: "Drag the items below to change their order in the main navigation bar:", el: "Σύρετε τα στοιχεία παρακάτω για να αλλάξετε τη σειρά τους στη κύρια γραμμή πλοήγησης:" }}</TranslatableText>
+              </p>
+              
+              <Reorder.Group 
+                axis="y" 
+                values={settings.mainNavigationOrder} 
+                onReorder={(newOrder) => setSettings(prev => ({ ...prev, mainNavigationOrder: newOrder }))}
+                className="space-y-2"
+              >
+                {settings.mainNavigationOrder.map((item) => (
+                  <Reorder.Item key={item} value={item} className="cursor-move">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                    >
+                      <GripVertical className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-900 capitalize">
+                          {item === 'home' && <TranslatableText>Home</TranslatableText>}
+                          {item === 'news' && <TranslatableText>News</TranslatableText>}
+                          {item === 'events' && <TranslatableText>Events</TranslatableText>}
+                          {item === 'contact' && <TranslatableText>Contact</TranslatableText>}
+                          {item === 'museums' && <TranslatableText>Museums</TranslatableText>}
+                        </span>
+                        <span className="text-sm text-gray-500 ml-2">({item})</span>
+                      </div>
+                      <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                        <TranslatableText>Drag to reorder</TranslatableText>
+                      </div>
+                    </motion.div>
+                  </Reorder.Item>
+                ))}
+              </Reorder.Group>
+              
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <TranslatableText>{{ en: "💡 Tip: The order you set here will be applied to the main navigation bar. Items at the top will appear first, followed by items below.", el: "💡 Συμβουλή: Η σειρά που ορίζετε εδώ θα εφαρμοστεί στη κύρια γραμμή πλοήγησης. Τα στοιχεία στην κορυφή θα εμφανίζονται πρώτα, ακολουθούμενα από τα στοιχεία παρακάτω." }}</TranslatableText>
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Action Buttons */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
         className="flex flex-col sm:flex-row gap-4 justify-end"
       >
         <Button
@@ -340,7 +398,7 @@ export default function AppearancePage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+        transition={{ duration: 0.5, delay: 0.45 }}
       >
         <Card className="shadow-lg border-0">
           <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">

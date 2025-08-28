@@ -8,6 +8,9 @@ interface AppearanceSettings {
     image2: string;
   };
   exploreTownImage: string;
+  eventsSectionImage: string;
+  museumsSectionImage: string;
+  mainNavigationOrder: string[];
 }
 
 const defaultSettings: AppearanceSettings = {
@@ -16,6 +19,9 @@ const defaultSettings: AppearanceSettings = {
     image2: '/h2.jpeg',
   },
   exploreTownImage: '/hero2.jpeg',
+  eventsSectionImage: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80',
+  museumsSectionImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+  mainNavigationOrder: ['home', 'news', 'events', 'contact', 'museums'],
 };
 
 export function useAppearanceSettings() {
@@ -23,35 +29,31 @@ export function useAppearanceSettings() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load settings from localStorage
-    const savedSettings = localStorage.getItem('appearanceSettings');
-    if (savedSettings) {
+    async function loadSettings() {
       try {
-        const parsed = JSON.parse(savedSettings);
-        setSettings({ ...defaultSettings, ...parsed });
+        const { getAppearanceSettingsFromFirestore } = await import('@/lib/firestore');
+        const firestoreSettings = await getAppearanceSettingsFromFirestore();
+        
+        if (firestoreSettings) {
+          setSettings({ ...defaultSettings, ...firestoreSettings });
+        } else {
+          // Fallback to localStorage if no Firestore settings
+          const savedSettings = localStorage.getItem('appearanceSettings');
+          if (savedSettings) {
+            const parsed = JSON.parse(savedSettings);
+            setSettings({ ...defaultSettings, ...parsed });
+          }
+        }
       } catch (error) {
-        console.error('Error parsing appearance settings:', error);
+        console.error('Error loading appearance settings:', error);
         setSettings(defaultSettings);
+      } finally {
+        setLoading(false);
       }
     }
-    setLoading(false);
+    
+    loadSettings();
   }, []);
 
-  const updateSettings = (newSettings: Partial<AppearanceSettings>) => {
-    const updatedSettings = { ...settings, ...newSettings };
-    setSettings(updatedSettings);
-    localStorage.setItem('appearanceSettings', JSON.stringify(updatedSettings));
-  };
-
-  const resetSettings = () => {
-    setSettings(defaultSettings);
-    localStorage.removeItem('appearanceSettings');
-  };
-
-  return {
-    settings,
-    loading,
-    updateSettings,
-    resetSettings,
-  };
+  return { settings, loading };
 } 

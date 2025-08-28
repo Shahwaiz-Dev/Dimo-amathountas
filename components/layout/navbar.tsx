@@ -9,6 +9,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { TranslatableText } from '@/components/translatable-content';
 import { getAllMunicipalityPages, MunicipalityPage, getPageCategories, PageCategory, getNavbarCategories } from '@/lib/firestore';
 import { motion, AnimatePresence, easeOut } from 'framer-motion';
+import { useAppearanceSettings } from '@/hooks/useAppearanceSettings';
 
 // Add type definitions for Google Translate globals
 declare global {
@@ -88,6 +89,12 @@ export function Navbar() {
   const [loadingNavbarCategories, setLoadingNavbarCategories] = useState(true);
   const [dynamicDropdownStates, setDynamicDropdownStates] = useState<{ [key: string]: boolean }>({});
   const { currentLang, setCurrentLang, isTranslating } = useTranslation();
+  const { settings: appearanceSettings, loading: loadingAppearance } = useAppearanceSettings();
+  
+  // Fallback to default navigation order if settings fail to load
+  const navigationOrder = loadingAppearance || !appearanceSettings?.mainNavigationOrder 
+    ? ['home', 'news', 'events', 'contact', 'museums']
+    : appearanceSettings.mainNavigationOrder;
 
   const loadMunicipalityPages = async () => {
     try {
@@ -159,6 +166,175 @@ export function Navbar() {
 
   // Get categories that should appear in navbar (max 10)
   const navbarCategoriesToShow = navbarCategories.slice(0, 10);
+
+  // Function to render main navigation items based on custom order
+  const renderMainNavigationItem = (item: string, index: number) => {
+    const baseDelay = 0.4;
+    const itemDelay = baseDelay + (index * 0.1);
+    
+    switch (item) {
+      case 'home':
+        return (
+          <motion.div
+            key="home"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: itemDelay }}
+          >
+            <Link href="/" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px] truncate" style={{ textDecoration: 'none' }}>
+              <span className="relative">
+                <TranslatableText>Home</TranslatableText>
+                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+          </motion.div>
+        );
+      
+      case 'news':
+        return (
+          <motion.div
+            key="news"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: itemDelay }}
+          >
+            <Link href="/news" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
+              <span className="relative">
+                <TranslatableText>News</TranslatableText>
+                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+          </motion.div>
+        );
+      
+      case 'events':
+        return (
+          <motion.div
+            key="events"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: itemDelay }}
+          >
+            <Link href="/events" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
+              <span className="relative">
+                <TranslatableText>Events</TranslatableText>
+                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+          </motion.div>
+        );
+      
+      case 'contact':
+        return (
+          <motion.div
+            key="contact"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: itemDelay }}
+          >
+            <Link href="/contact" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
+              <span className="relative">
+                <TranslatableText>Contact</TranslatableText>
+                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+          </motion.div>
+        );
+      
+      case 'museums':
+        return (
+          <motion.div
+            key="museums"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: itemDelay }}
+          >
+            <Link href="/museums" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
+              <span className="relative">
+                <TranslatableText>Museums</TranslatableText>
+                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+              </span>
+            </Link>
+          </motion.div>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  // Function to render mobile navigation items based on custom order
+  const renderMobileNavigationItem = (item: string, custom: number) => {
+    switch (item) {
+      case 'home':
+        return (
+          <Link 
+            key="home"
+            href="/" 
+            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+            style={{ textDecoration: 'none' }}
+            onClick={() => setIsOpen(false)}
+          >
+            <TranslatableText>Home</TranslatableText>
+          </Link>
+        );
+      
+      case 'news':
+        return (
+          <Link 
+            key="news"
+            href="/news" 
+            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+            style={{ textDecoration: 'none' }}
+            onClick={() => setIsOpen(false)}
+          >
+            <TranslatableText>News</TranslatableText>
+          </Link>
+        );
+      
+      case 'events':
+        return (
+          <Link 
+            key="events"
+            href="/events" 
+            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+            style={{ textDecoration: 'none' }}
+            onClick={() => setIsOpen(false)}
+          >
+            <TranslatableText>Events</TranslatableText>
+          </Link>
+        );
+      
+      case 'contact':
+        return (
+          <Link 
+            key="contact"
+            href="/contact" 
+            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+            style={{ textDecoration: 'none' }}
+            onClick={() => setIsOpen(false)}
+          >
+            <TranslatableText>Contact</TranslatableText>
+          </Link>
+        );
+      
+      case 'museums':
+        return (
+          <Link 
+            key="museums"
+            href="/museums" 
+            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+            style={{ textDecoration: 'none' }}
+            onClick={() => setIsOpen(false)}
+          >
+            <TranslatableText>Museums</TranslatableText>
+          </Link>
+        );
+      
+      default:
+        return null;
+    }
+  };
 
   return (
     <header className="w-full">
@@ -235,70 +411,23 @@ export function Navbar() {
             {/* Center Column - Navigation Links (6 columns) */}
             <div className="hidden lg:block col-span-6 relative">
               <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 max-h-20 overflow-visible relative">
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <Link href="/" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px] truncate" style={{ textDecoration: 'none' }}>
-                <span className="relative">
-                  <TranslatableText>Home</TranslatableText>
-                  <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                </span>
-              </Link>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <Link href="/news" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
-                <span className="relative">
-                  <TranslatableText>News</TranslatableText>
-                  <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                </span>
-              </Link>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-            >
-              <Link href="/events" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
-                <span className="relative">
-                  <TranslatableText>Events</TranslatableText>
-                  <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                </span>
-              </Link>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-            >
-              <Link href="/contact" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
-                <span className="relative">
-                  <TranslatableText>Contact</TranslatableText>
-                  <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                </span>
-              </Link>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.75 }}
-            >
-              <Link href="/museums" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
-                <span className="relative">
-                  <TranslatableText>Museums</TranslatableText>
-                  <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                </span>
-              </Link>
-            </motion.div>
+            {/* Dynamic Main Navigation Items */}
+            {loadingAppearance ? (
+              // Loading skeleton for navigation items
+              Array.from({ length: 5 }).map((_, index) => (
+                <motion.div
+                  key={`loading-${index}`}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                  className="h-6 w-20 bg-gray-200 rounded animate-pulse"
+                />
+              ))
+            ) : (
+              navigationOrder.map((item, index) => 
+                renderMainNavigationItem(item, index)
+              )
+            )}
             
 
 
@@ -602,63 +731,35 @@ export function Navbar() {
               
               <div className="flex-1 overflow-y-auto px-6 pb-6">
                 <nav className="space-y-4">
-                  {/* Mobile Menu Items */}
-                  <motion.div custom={0} variants={menuItemVariants} initial="hidden" animate="visible">
-                    <Link 
-                      href="/" 
-                      className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-                      style={{ textDecoration: 'none' }}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <TranslatableText>Home</TranslatableText>
-                    </Link>
-                  </motion.div>
-                  
-
-                  
-                  <motion.div custom={2} variants={menuItemVariants} initial="hidden" animate="visible">
-                    <Link 
-                      href="/news" 
-                      className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-                      style={{ textDecoration: 'none' }}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <TranslatableText>News</TranslatableText>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div custom={3} variants={menuItemVariants} initial="hidden" animate="visible">
-                    <Link 
-                      href="/events" 
-                      className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-                      style={{ textDecoration: 'none' }}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <TranslatableText>Events</TranslatableText>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div custom={4} variants={menuItemVariants} initial="hidden" animate="visible">
-                    <Link 
-                      href="/contact" 
-                      className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-                      style={{ textDecoration: 'none' }}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <TranslatableText>Contact</TranslatableText>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div custom={5} variants={menuItemVariants} initial="hidden" animate="visible">
-                    <Link 
-                      href="/museums" 
-                      className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-                      style={{ textDecoration: 'none' }}
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <TranslatableText>Museums</TranslatableText>
-                    </Link>
-                  </motion.div>
+                  {/* Dynamic Mobile Menu Items */}
+                  {loadingAppearance ? (
+                    // Loading skeleton for mobile menu items
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <motion.div 
+                        key={`loading-mobile-${index}`}
+                        custom={index} 
+                        variants={menuItemVariants} 
+                        initial="hidden" 
+                        animate="visible"
+                      >
+                        <div className="block py-3">
+                          <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    navigationOrder.map((item, index) => (
+                      <motion.div 
+                        key={item}
+                        custom={index} 
+                        variants={menuItemVariants} 
+                        initial="hidden" 
+                        animate="visible"
+                      >
+                        {renderMobileNavigationItem(item, index)}
+                      </motion.div>
+                    ))
+                  )}
                   
                   {/* Dynamic Categories in Mobile Menu (Max 10) */}
                   {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {

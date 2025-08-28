@@ -6,6 +6,7 @@ export interface AppearanceSettings {
   exploreTownImage: string;
   eventsSectionImage: string;
   museumsSectionImage: string;
+  mainNavigationOrder: string[];
 }
 
 const defaultSettings: AppearanceSettings = {
@@ -16,6 +17,7 @@ const defaultSettings: AppearanceSettings = {
   exploreTownImage: '/hero2.jpeg',
   eventsSectionImage: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80',
   museumsSectionImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+  mainNavigationOrder: ['home', 'news', 'events', 'contact', 'museums'],
 };
 
 export async function getAppearanceSettings(): Promise<AppearanceSettings> {
