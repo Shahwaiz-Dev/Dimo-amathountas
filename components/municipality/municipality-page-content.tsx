@@ -225,19 +225,19 @@ export function MunicipalityPageContent({ pageData }: MunicipalityPageContentPro
   }
 
   if (layout === 'layout3') {
-    // Image Banner + Content
+    // Portrait Image Banner + Content
     return (
       <div className="max-w-4xl mx-auto">
-        {/* Image Banner */}
+        {/* Portrait Image Banner */}
         {pageData.imageUrl && (
           <div className="mb-8">
-            <div className="relative w-full h-72">
+            <div className="relative w-full aspect-[9/16] max-w-sm mx-auto">
               <Image
                 src={pageData.imageUrl}
                 alt={getBilingualTitle(pageData.title)}
                 fill
                 className="object-cover rounded-lg"
-                sizes="(max-width: 768px) 100vw, 800px"
+                sizes="(max-width: 768px) 100vw, 400px"
                 priority
               />
             </div>
@@ -266,25 +266,25 @@ export function MunicipalityPageContent({ pageData }: MunicipalityPageContentPro
   }
 
   if (layout === 'layout4') {
-    // Split Layout: 50% Image + 50% Content
+    // Portrait Split Layout: 9:16 Image + Content
     return (
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Left Side - Image */}
+          {/* Left Side - Portrait Image */}
           <div className="order-2 lg:order-1">
             {pageData.imageUrl ? (
-              <div className="relative w-full h-96 lg:h-full min-h-[400px]">
+              <div className="relative w-full aspect-[9/16] max-w-sm mx-auto lg:mx-0">
                 <Image
                   src={pageData.imageUrl}
                   alt={getBilingualTitle(pageData.title)}
                   fill
                   className="object-cover rounded-lg"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  sizes="(max-width: 1024px) 100vw, 400px"
                   priority
                 />
               </div>
             ) : (
-              <div className="w-full h-96 lg:h-full min-h-[400px] bg-gray-200 rounded-lg flex items-center justify-center">
+              <div className="w-full aspect-[9/16] max-w-sm mx-auto lg:mx-0 bg-gray-200 rounded-lg flex items-center justify-center">
                 <div className="text-center text-gray-500">
                   <div className="text-4xl mb-2">🖼️</div>
                   <p className="text-sm">
