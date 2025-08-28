@@ -159,7 +159,38 @@ export function PagesManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.slug.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a slug for the page",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.category) {
+      toast({
+        title: "Error",
+        description: "Please select a category for the page",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.title.en.trim() || !formData.title.el.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter titles in both English and Greek",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
+      console.log('Submitting page with data:', formData);
+      
       if (editingPage) {
         const success = await updateMunicipalityPage(editingPage.slug, { ...formData, layout: formData.layout as LayoutType });
         if (success) {
