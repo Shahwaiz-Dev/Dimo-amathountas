@@ -350,11 +350,7 @@ export default function AppearancePage() {
                 ))}
               </Reorder.Group>
               
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <TranslatableText>{{ en: "💡 Tip: The order you set here will be applied to the main navigation bar. Items at the top will appear first, followed by items below.", el: "💡 Συμβουλή: Η σειρά που ορίζετε εδώ θα εφαρμοστεί στη κύρια γραμμή πλοήγησης. Τα στοιχεία στην κορυφή θα εμφανίζονται πρώτα, ακολουθούμενα από τα στοιχεία παρακάτω." }}</TranslatableText>
-                </p>
-              </div>
+
             </div>
           </CardContent>
         </Card>
