@@ -404,7 +404,7 @@ export interface PageCategory {
   color?: string;
   isActive?: boolean;
   showInNavbar?: boolean; // Added for navbar filtering
-  parentCategory?: string; // Added for subcategories
+  parentCategory?: string | null; // Added for subcategories, allows null
 }
 
 export async function getPageCategories(): Promise<PageCategory[]> {
@@ -467,7 +467,7 @@ export async function getSubcategories(parentCategoryId: string): Promise<PageCa
     
     // Return subcategories of the specified parent
     return categories
-      .filter(cat => cat.isActive && (cat as any).parentCategory === parentCategoryId);
+      .filter(cat => cat.isActive && cat.parentCategory === parentCategoryId);
   } catch (error) {
     console.error('Error fetching subcategories:', error);
     return [];
