@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
+
 import { 
   Plus, 
   Edit, 
@@ -21,9 +21,7 @@ import {
   Settings,
   Heart,
   FileText,
-  Tag,
-  ArrowUp,
-  ArrowDown
+  Tag
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -69,23 +67,16 @@ export function PageCategoriesManagement() {
     icon: string;
     color: string;
     isActive: boolean;
-    order: number;
-    // New fields for enhanced category system
     parentCategory?: string | 'none';
     showInNavbar: boolean;
-    navOrder: number;
-    slug: string;
   }>({
     name: { en: '', el: '' },
     description: { en: '', el: '' },
     icon: 'file-text',
     color: 'blue',
     isActive: true,
-    order: 0,
     parentCategory: 'none',
     showInNavbar: true, // Changed to true by default
-    navOrder: 0,
-    slug: '',
   });
 
   const loadCategories = useCallback(async () => {
@@ -115,11 +106,8 @@ export function PageCategoriesManagement() {
       icon: 'file-text',
       color: 'blue',
       isActive: true,
-      order: 0,
       parentCategory: 'none',
       showInNavbar: true, // Changed to true by default
-      navOrder: 0,
-      slug: '',
     });
     setEditingCategory(null);
   };
@@ -132,11 +120,8 @@ export function PageCategoriesManagement() {
       icon: category.icon || 'file-text',
       color: category.color || 'blue',
       isActive: category.isActive ?? true,
-      order: category.order || 0,
       parentCategory: category.parentCategory || 'none',
       showInNavbar: (category as any).showInNavbar ?? false,
-      navOrder: (category as any).navOrder || 0,
-      slug: (category as any).slug || '',
     });
     setIsDialogOpen(true);
   };
@@ -176,21 +161,10 @@ export function PageCategoriesManagement() {
       }
     }
     
-    // Auto-generate slug if not provided
-    let finalSlug = formData.slug;
-    if (!finalSlug) {
-      finalSlug = formData.name.en.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-') // Replace multiple hyphens with single
-        .trim();
-    }
-    
     try {
       // Prepare data for submission, converting 'none' to undefined for parentCategory
       const submissionData = {
         ...formData,
-        slug: finalSlug,
         parentCategory: formData.parentCategory === 'none' ? undefined : formData.parentCategory
       };
 
@@ -220,42 +194,7 @@ export function PageCategoriesManagement() {
     }
   };
 
-  const moveCategory = async (id: string, direction: 'up' | 'down') => {
-    try {
-      const currentIndex = categories.findIndex(cat => cat.id === id);
-      if (currentIndex === -1) return;
 
-      const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-      if (newIndex < 0 || newIndex >= categories.length) return;
-
-      const currentCategory = categories[currentIndex];
-      const targetCategory = categories[newIndex];
-
-      // Swap orders
-      const tempOrder = currentCategory.order;
-      currentCategory.order = targetCategory.order;
-      targetCategory.order = tempOrder;
-
-      // Update both categories
-      await Promise.all([
-        updatePageCategory(currentCategory.id, currentCategory),
-        updatePageCategory(targetCategory.id, targetCategory)
-      ]);
-
-      toast({
-        title: currentLang === 'el' ? "Επιτυχία" : "Success",
-        description: currentLang === 'el' ? "Η σειρά κατηγορίας ενημερώθηκε" : "Category order updated",
-      });
-      
-      loadCategories();
-    } catch (error) {
-      toast({
-        title: currentLang === 'el' ? "Σφάλμα" : "Error",
-        description: currentLang === 'el' ? "Αποτυχία ενημέρωσης σειράς κατηγορίας" : "Failed to update category order",
-        variant: "destructive",
-      });
-    }
-  };
 
   const getIconComponent = (iconName: string) => {
     const iconConfig = CATEGORY_ICONS.find(icon => icon.value === iconName);
@@ -304,7 +243,7 @@ export function PageCategoriesManagement() {
           <div className="flex gap-2">
             <Button 
               onClick={() => {
-                setFormData({ ...formData, order: categories.length, parentCategory: 'none' });
+                setFormData({ ...formData, parentCategory: 'none' });
                 setIsDialogOpen(true);
               }}
               className="bg-primary text-white font-semibold"
@@ -316,7 +255,7 @@ export function PageCategoriesManagement() {
             <Button 
               onClick={() => {
                 // This will open the form, user needs to select parent category
-                setFormData({ ...formData, order: categories.length, parentCategory: 'none' });
+                setFormData({ ...formData, parentCategory: 'none' });
                 setIsDialogOpen(true);
               }}
               variant="outline"
@@ -344,7 +283,7 @@ export function PageCategoriesManagement() {
                 </p>
                 <Button 
                   onClick={() => {
-                    setFormData({ ...formData, order: 0 });
+                    setFormData({ ...formData, parentCategory: 'none' });
                     setIsDialogOpen(true);
                   }}
                   className="bg-primary text-white font-semibold"
@@ -364,26 +303,7 @@ export function PageCategoriesManagement() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="flex flex-col space-y-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => moveCategory(category.id, 'up')}
-                            disabled={index === 0}
-                            className="h-6 w-6 p-0"
-                          >
-                            <ArrowUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => moveCategory(category.id, 'down')}
-                            disabled={index === categories.length - 1}
-                            className="h-6 w-6 p-0"
-                          >
-                            <ArrowDown className="h-3 w-3" />
-                          </Button>
-                        </div>
+
                         
                         <div className={`p-2 rounded-lg ${colorClass}`}>
                           <IconComponent className="h-5 w-5" />
@@ -401,9 +321,7 @@ export function PageCategoriesManagement() {
                                 <TranslatableText>{{ en: 'Inactive', el: 'Ανενεργή' }}</TranslatableText>
                               )}
                             </Badge>
-                            <Badge variant="outline">
-                              <TranslatableText>{{ en: 'Order', el: 'Σειρά' }}</TranslatableText>: {category.order}
-                            </Badge>
+
                             {category.showInNavbar && (
                               <Badge variant="default" className="bg-green-100 text-green-600">
                                 <TranslatableText>{{ en: 'Navbar', el: 'Γραμμή Πλοήγησης' }}</TranslatableText>
@@ -451,7 +369,6 @@ export function PageCategoriesManagement() {
                             setFormData({
                               ...formData,
                               parentCategory: category.id,
-                              order: categories.length,
                               showInNavbar: false, // Subcategories don't show in navbar by default
                             });
                             setIsDialogOpen(true);
@@ -496,6 +413,11 @@ export function PageCategoriesManagement() {
             <p>
               <TranslatableText>{{ en: '4. Pages will automatically appear under their respective categories in the navbar', el: '4. Οι σελίδες θα εμφανιστούν αυτόματα κάτω από τις αντίστοιχες κατηγορίες στη γραμμή πλοήγησης' }}</TranslatableText>
             </p>
+            <div className="mt-3 p-3 bg-white rounded border">
+              <p className="text-xs text-gray-600">
+                <TranslatableText>{{ en: '💡 Tip: You can also create categories directly from the Municipality Pages section, but for better organization, we recommend using this dedicated Categories page.', el: '💡 Συμβουλή: Μπορείτε επίσης να δημιουργήσετε κατηγορίες απευθείας από την ενότητα Σελίδες Δήμου, αλλά για καλύτερη οργάνωση, προτείνουμε τη χρήση αυτής της αφιερωμένης σελίδας Κατηγοριών.' }}</TranslatableText>
+              </p>
+            </div>
           </div>
         </div>
         
@@ -662,53 +584,17 @@ export function PageCategoriesManagement() {
               </div>
             </div>
 
-            {/* Order */}
-            <div>
-              <Label htmlFor="order" className="text-sm font-medium">
-                <TranslatableText>{{ en: 'Display Order', el: 'Σειρά Εμφάνισης' }}</TranslatableText>
-              </Label>
-              <Input
-                id="order"
-                type="number"
-                value={formData.order}
-                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
-                placeholder="0"
-                className="mt-1"
-                min="0"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                <TranslatableText>{{ en: 'Lower numbers appear first in the list', el: 'Οι μικρότεροι αριθμοί εμφανίζονται πρώτοι στη λίστα' }}</TranslatableText>
-              </p>
-            </div>
-
-            {/* Active Status */}
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isActive"
-                checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
-              />
-              <Label htmlFor="isActive" className="text-sm font-medium">
-                <TranslatableText>{{ en: 'Active', el: 'Ενεργή' }}</TranslatableText>
-              </Label>
-            </div>
-
-            {/* Enhanced Category Settings */}
-            <Separator />
+            {/* Simple Settings */}
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">
-                <TranslatableText>{{ en: 'Advanced Settings', el: 'Προηγμένες Ρυθμίσεις' }}</TranslatableText>
-              </h3>
-              
               {/* Parent Category */}
               <div>
                 <Label htmlFor="parentCategory" className="text-sm font-medium">
-                  <TranslatableText>{{ en: 'Parent Category', el: 'Γονική Κατηγορία' }}</TranslatableText>
+                  <TranslatableText>{{ en: 'Parent Category (Optional)', el: 'Γονική Κατηγορία (Προαιρετικό)' }}</TranslatableText>
                 </Label>
-                                  <Select
-                    value={formData.parentCategory || 'none'}
-                    onValueChange={(value) => setFormData({ ...formData, parentCategory: value === 'none' ? undefined : value })}
-                  >
+                <Select
+                  value={formData.parentCategory || 'none'}
+                  onValueChange={(value) => setFormData({ ...formData, parentCategory: value === 'none' ? undefined : value })}
+                >
                   <SelectTrigger id="parentCategory" className="mt-1">
                     <SelectValue placeholder={currentLang === 'el' ? 'Επιλέξτε γονική κατηγορία (προαιρετικό)' : 'Select parent category (optional)'} />
                   </SelectTrigger>
@@ -726,58 +612,24 @@ export function PageCategoriesManagement() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 mt-1">
-                  <TranslatableText>{{ en: 'Leave empty to create a top-level category', el: 'Αφήστε κενό για να δημιουργήσετε κατηγορία επάνω επιπέδου' }}</TranslatableText>
+                  <TranslatableText>{{ en: 'Select a parent category to create a subcategory', el: 'Επιλέξτε γονική κατηγορία για να δημιουργήσετε υποκατηγορία' }}</TranslatableText>
                 </p>
               </div>
 
-              {/* Slug */}
-              <div>
-                <Label htmlFor="slug" className="text-sm font-medium">
-                  <TranslatableText>{{ en: 'URL Slug', el: 'URL Slug' }}</TranslatableText>
-                </Label>
-                <Input
-                  id="slug"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  placeholder={currentLang === 'el' ? 'Εισάγετε το URL slug' : 'Enter URL slug'}
-                  className="mt-1"
+              {/* Show in Navbar */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showInNavbar"
+                  checked={formData.showInNavbar}
+                  onCheckedChange={(checked) => setFormData({ ...formData, showInNavbar: checked })}
+                  disabled={!formData.showInNavbar && categories.filter(cat => (cat as any).showInNavbar).length >= 10}
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  <TranslatableText>{{ en: 'URL-friendly version of the category name (e.g., "citizen-services"). Leave empty to auto-generate from the English name.', el: 'Φιλικό προς URL έκδοση του ονόματος της κατηγορίας (π.χ., "υπηρεσίες-πολιτών"). Αφήστε κενό για αυτόματη δημιουργία από το αγγλικό όνομα.' }}</TranslatableText>
-                </p>
-              </div>
-
-              {/* Navbar Settings */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="showInNavbar"
-                    checked={formData.showInNavbar}
-                    onCheckedChange={(checked) => setFormData({ ...formData, showInNavbar: checked })}
-                    disabled={!formData.showInNavbar && categories.filter(cat => (cat as any).showInNavbar).length >= 10}
-                  />
-                  <Label htmlFor="showInNavbar" className="text-sm font-medium">
-                    <TranslatableText>{{ en: 'Show in Navbar', el: 'Εμφάνιση στη Γραμμή Πλοήγησης' }}</TranslatableText>
-                  </Label>
-                </div>
-                
-                <div>
-                  <Label htmlFor="navOrder" className="text-sm font-medium">
-                    <TranslatableText>{{ en: 'Navbar Order', el: 'Σειρά στη Γραμμή Πλοήγησης' }}</TranslatableText>
-                  </Label>
-                  <Input
-                    id="navOrder"
-                    type="number"
-                    value={formData.navOrder}
-                    onChange={(e) => setFormData({ ...formData, navOrder: parseInt(e.target.value) || 0 })}
-                    placeholder="0"
-                    className="mt-1"
-                    min="0"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    <TranslatableText>{{ en: 'Lower numbers appear first in navbar', el: 'Οι μικρότεροι αριθμοί εμφανίζονται πρώτοι στη γραμμή πλοήγησης' }}</TranslatableText>
-                  </p>
-                </div>
+                <Label htmlFor="showInNavbar" className="text-sm font-medium">
+                  <TranslatableText>{{ en: 'Show in Navbar', el: 'Εμφάνιση στη Γραμμή Πλοήγησης' }}</TranslatableText>
+                </Label>
+                <span className="text-xs text-gray-500">
+                  ({categories.filter(cat => (cat as any).showInNavbar).length}/10)
+                </span>
               </div>
               
               {/* Navbar Limit Warning */}

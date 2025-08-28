@@ -427,6 +427,27 @@ export function PagesManagement() {
             </Button>
           </div>
         </div>
+        
+        {/* Link to Main Categories Page */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                <TranslatableText>{{ en: 'Manage Categories', el: 'Διαχείριση Κατηγοριών' }}</TranslatableText>
+              </h3>
+              <p className="text-sm text-blue-800">
+                <TranslatableText>{{ en: 'For better category management, use the dedicated Categories page', el: 'Για καλύτερη διαχείριση κατηγοριών, χρησιμοποιήστε την αφιερωμένη σελίδα Κατηγοριών' }}</TranslatableText>
+              </p>
+            </div>
+            <Button 
+              onClick={() => window.location.href = '/admin/categories'}
+              variant="outline"
+              className="border-blue-300 text-blue-700 hover:bg-blue-100"
+            >
+              <TranslatableText>{{ en: 'Go to Categories', el: 'Μετάβαση σε Κατηγορίες' }}</TranslatableText>
+            </Button>
+          </div>
+        </div>
 
         {/* Category Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
