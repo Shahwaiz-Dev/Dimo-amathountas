@@ -86,16 +86,6 @@ export function Navbar() {
   const [loadingPages, setLoadingPages] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingNavbarCategories, setLoadingNavbarCategories] = useState(true);
-  const [isMunicipalityDropdownOpen, setIsMunicipalityDropdownOpen] = useState(false);
-  const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
-  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
-  const [isCitizenServicesDropdownOpen, setIsCitizenServicesDropdownOpen] = useState(false);
-  const [isCivilMarriagesDropdownOpen, setIsCivilMarriagesDropdownOpen] = useState(false);
-  const [isMobileMunicipalityOpen, setIsMobileMunicipalityOpen] = useState(false);
-  const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
-  const [isMobileServicesOpen, setIsMobileServicesOpen] = useState(false);
-  const [isMobileCitizenServicesOpen, setIsMobileCitizenServicesOpen] = useState(false);
-  const [isMobileCivilMarriagesOpen, setIsMobileCivilMarriagesOpen] = useState(false);
   const [dynamicDropdownStates, setDynamicDropdownStates] = useState<{ [key: string]: boolean }>({});
   const { currentLang, setCurrentLang, isTranslating } = useTranslation();
 
@@ -167,19 +157,8 @@ export function Navbar() {
     !navbarCategories.some(navCat => navCat.id === group.category.id)
   );
 
-  // Get municipality-related categories (can be configured via admin)
-  const municipalityCategories = allCategoriesWithPages.filter(group => {
-    const catNameEn = group.category.name.en.toLowerCase();
-    const catNameEl = group.category.name.el.toLowerCase();
-    return (catNameEn.includes('municipality') || catNameEl.includes('δήμος') || 
-            catNameEn.includes('government') || catNameEl.includes('διοίκηση')) &&
-           group.pages.length > 0;
-  });
-
-  // Get other categories for the More dropdown
-  const moreCategories = dropdownCategories.filter(group => 
-    !municipalityCategories.some(muniCat => muniCat.category.id === group.category.id)
-  );
+  // Get categories that should appear in navbar (max 10)
+  const navbarCategoriesToShow = navbarCategories.slice(0, 10);
 
   return (
     <header className="w-full">
@@ -319,8 +298,8 @@ export function Navbar() {
               </Link>
             </motion.div>
             
-            {/* Dynamic Categories from Admin */}
-            {!loadingNavbarCategories && navbarCategories.map((category, index) => {
+            {/* Dynamic Categories from Admin (Max 10) */}
+            {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
               const categorySlug = (category as any).slug || category.name.en.toLowerCase().replace(/\s+/g, '-');
               const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
               
@@ -377,17 +356,20 @@ export function Navbar() {
                           <div className="py-1">
                             {categories
                               .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
-                              .map((subcat) => (
-                                <Link 
-                                  key={subcat.id}
-                                  href={`/${(subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}
-                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
-                                  style={{ textDecoration: 'none' }}
-                                  onClick={() => setDynamicDropdownStates({})}
-                                >
-                                  <TranslatableText>{subcat.name}</TranslatableText>
-                                </Link>
-                              ))}
+                              .map((subcat) => {
+                                const subcatSlug = (subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-');
+                                return (
+                                  <Link 
+                                    key={subcat.id}
+                                    href={`/${subcatSlug}`}
+                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors"
+                                    style={{ textDecoration: 'none' }}
+                                    onClick={() => setDynamicDropdownStates({})}
+                                  >
+                                    <TranslatableText>{subcat.name}</TranslatableText>
+                                  </Link>
+                                );
+                              })}
                           </div>
                         </motion.div>
                       )}
@@ -397,183 +379,9 @@ export function Navbar() {
               );
             })}
 
-            {/* Municipality Dropdown */}
-            <motion.div 
-              className="relative group"
-              onMouseEnter={() => setIsMunicipalityDropdownOpen(true)}
-              onMouseLeave={() => setIsMunicipalityDropdownOpen(false)}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 + (navbarCategories.length * 0.1) }}
-            >
-              <button 
-                className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-1 text-base"
-                onClick={() => setIsMunicipalityDropdownOpen(!isMunicipalityDropdownOpen)}
-              >
-                <span className="relative">
-                  <TranslatableText>Municipality</TranslatableText>
-                  <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                </span>
-                <motion.div
-                  animate={{ rotate: isMunicipalityDropdownOpen ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </motion.div>
-              </button>
-              
-              {/* Dropdown Content */}
-              <AnimatePresence>
-                {isMunicipalityDropdownOpen && (
-                  <motion.div 
-                    className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-                    variants={dropdownVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                  >
-                    <div className="py-1">
-                      {loadingPages || loadingCategories || loadingNavbarCategories ? (
-                        <div className="px-4 py-2 text-sm text-gray-500">
-                          Loading municipality pages...
-                        </div>
-                      ) : municipalityCategories.length > 0 ? (
-                        municipalityCategories.map((group, index) => (
-                          <motion.div
-                            key={group.category.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                          >
-                            <Link 
-                              href={`/municipality/${group.category.name.en.toLowerCase().replace(/\s+/g, '-')}`}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 active:text-gray-700 focus:text-gray-700 transition-colors"
-                              style={{ textDecoration: 'none' }}
-                              onClick={() => setIsMunicipalityDropdownOpen(false)}
-                            >
-                              {getLocalizedTitle(group.category.name)}
-                            </Link>
-                          </motion.div>
-                        ))
-                      ) : (
-                        <div className="px-4 py-2 text-sm text-gray-500">
-                          No pages available
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
 
-            {/* More Dropdown */}
-            <motion.div 
-              className="relative group"
-              onMouseEnter={() => setIsMoreDropdownOpen(true)}
-              onMouseLeave={() => setIsMoreDropdownOpen(false)}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
-            >
-              <button 
-                className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center gap-1 text-base"
-                onClick={() => setIsMoreDropdownOpen(!isMoreDropdownOpen)}
-              >
-                <span className="relative">
-                  <TranslatableText>More</TranslatableText>
-                  <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                </span>
-                <motion.div
-                  animate={{ rotate: isMoreDropdownOpen ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </motion.div>
-              </button>
-              
-              {/* Dropdown Content */}
-              <AnimatePresence>
-                {isMoreDropdownOpen && (
-                  <motion.div 
-                    className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-                    variants={dropdownVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                  >
-                    <div className="py-1">
-                      {loadingPages || loadingCategories || loadingNavbarCategories ? (
-                        <div className="px-4 py-2 text-sm text-gray-500">
-                          Loading pages...
-                        </div>
-                      ) : moreCategories.length > 0 ? (
-                        <div className="space-y-1">
-                          {/* Dynamic Categories */}
-                          {moreCategories.map((group) => (
-                            <div key={group.category.id} className="relative">
-                              <div 
-                                className="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors cursor-pointer"
-                                onClick={() => toggleDynamicDropdown(group.category.id)}
-                              >
-                                <span>
-                                  <TranslatableText>{group.category.name}</TranslatableText>
-                                </span>
-                                <motion.div
-                                  animate={{ rotate: dynamicDropdownStates[group.category.id] ? 180 : 0 }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  <ChevronDown className="h-3 w-3" />
-                                </motion.div>
-                              </div>
-                              
-                              {/* Dynamic Category Sub-dropdown */}
-                              <AnimatePresence>
-                                {dynamicDropdownStates[group.category.id] && (
-                                  <motion.div 
-                                    className="absolute left-0 top-full mt-1 w-64 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-                                    variants={dropdownVariants}
-                                    initial="hidden"
-                                    animate="visible"
-                                    exit="exit"
-                                  >
-                                    <div className="py-1">
-                                      {group.pages.map((page, index) => (
-                                        <motion.div
-                                          key={page.slug}
-                                          initial={{ opacity: 0, x: -10 }}
-                                          animate={{ opacity: 1, x: 0 }}
-                                          transition={{ delay: index * 0.05 }}
-                                        >
-                                          <Link 
-                                            href={`/${group.category.name.en.toLowerCase().replace(/\s+/g, '-')}/${page.slug}`}
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-indigo-600 active:text-gray-700 focus:text-gray-700 transition-colors"
-                                            style={{ textDecoration: 'none' }}
-                                            onClick={() => {
-                                              setIsMoreDropdownOpen(false);
-                                              setDynamicDropdownStates({});
-                                            }}
-                                          >
-                                            {getLocalizedTitle(page.title)}
-                                          </Link>
-                                        </motion.div>
-                                      ))}
-                                    </div>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="px-4 py-2 text-sm text-gray-500">
-                          No pages available
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+
+
           </div>
 
           {/* Right Section - Language Switcher & Mobile Menu Button */}
@@ -735,61 +543,7 @@ export function Navbar() {
                     </Link>
                   </motion.div>
                   
-                  {/* Municipality Dropdown */}
-                  <motion.div custom={1} variants={menuItemVariants} initial="hidden" animate="visible">
-                    <button 
-                      className="w-full text-left py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center justify-between"
-                      onClick={() => setIsMobileMunicipalityOpen(!isMobileMunicipalityOpen)}
-                    >
-                      <TranslatableText>Municipality</TranslatableText>
-                      <motion.div
-                        animate={{ rotate: isMobileMunicipalityOpen ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </motion.div>
-                    </button>
-                    
-                    <AnimatePresence>
-                      {isMobileMunicipalityOpen && (
-                        <motion.div 
-                          className="ml-4 space-y-2"
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          {loadingPages || loadingCategories || loadingNavbarCategories ? (
-                            <div className="py-2 text-sm text-gray-500">
-                              Loading municipality pages...
-                            </div>
-                          ) : municipalityCategories.length > 0 ? (
-                            municipalityCategories.map((group, index) => (
-                              <motion.div
-                                key={group.category.id}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                              >
-                                <Link 
-                                  href={`/municipality/${group.category.name.en.toLowerCase().replace(/\s+/g, '-')}`}
-                                  className="block py-2 text-sm text-gray-600 hover:text-indigo-600 active:text-gray-600 focus:text-gray-600 transition-colors"
-                                  style={{ textDecoration: 'none' }}
-                                  onClick={() => setIsOpen(false)}
-                                >
-                                  {getLocalizedTitle(group.category.name)}
-                                </Link>
-                              </motion.div>
-                            ))
-                          ) : (
-                            <div className="py-2 text-sm text-gray-500">
-                              No pages available
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+
                   
                   <motion.div custom={2} variants={menuItemVariants} initial="hidden" animate="visible">
                     <Link 
@@ -835,8 +589,8 @@ export function Navbar() {
                     </Link>
                   </motion.div>
                   
-                  {/* Dynamic Categories in Mobile Menu */}
-                  {!loadingNavbarCategories && navbarCategories.map((category, index) => {
+                  {/* Dynamic Categories in Mobile Menu (Max 10) */}
+                  {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
                     const categorySlug = (category as any).slug || category.name.en.toLowerCase().replace(/\s+/g, '-');
                     const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
                     
@@ -885,16 +639,19 @@ export function Navbar() {
                               >
                                 {categories
                                   .filter(cat => (cat as any).parentCategory === category.id && cat.isActive)
-                                  .map((subcat) => (
-                                    <Link 
-                                      key={subcat.id}
-                                      href={`/${(subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-')}`}
-                                      className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
-                                      onClick={() => setIsOpen(false)}
-                                    >
-                                      <TranslatableText>{subcat.name}</TranslatableText>
-                                    </Link>
-                                  ))}
+                                  .map((subcat) => {
+                                    const subcatSlug = (subcat as any).slug || subcat.name.en.toLowerCase().replace(/\s+/g, '-');
+                                    return (
+                                      <Link 
+                                        key={subcat.id}
+                                        href={`/${subcatSlug}`}
+                                        className="block py-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+                                        onClick={() => setIsOpen(false)}
+                                      >
+                                        <TranslatableText>{subcat.name}</TranslatableText>
+                                      </Link>
+                                    );
+                                  })}
                               </motion.div>
                             )}
                           </AnimatePresence>
@@ -903,94 +660,7 @@ export function Navbar() {
                     );
                   })}
                   
-                  {/* More Dropdown */}
-                  <motion.div custom={6} variants={menuItemVariants} initial="hidden" animate="visible">
-                    <button 
-                      className="w-full text-left py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors flex items-center justify-between"
-                      onClick={() => setIsMobileMoreOpen(!isMobileMoreOpen)}
-                    >
-                      <TranslatableText>More</TranslatableText>
-                      <motion.div
-                        animate={{ rotate: isMobileMoreOpen ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </motion.div>
-                    </button>
-                    
-                    <AnimatePresence>
-                      {isMobileMoreOpen && (
-                        <motion.div 
-                          className="ml-4 space-y-2"
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          {loadingPages || loadingCategories || loadingNavbarCategories ? (
-                            <div className="py-2 text-sm text-gray-500">
-                              Loading pages...
-                            </div>
-                          ) : moreCategories.length > 0 ? (
-                            <div className="space-y-2">
-                              {/* Dynamic Categories */}
-                              {moreCategories.map((group) => (
-                                <div key={group.category.id}>
-                                  <button 
-                                    className="w-full text-left py-2 text-sm text-gray-600 hover:text-indigo-600 font-medium transition-colors flex items-center justify-between"
-                                    onClick={() => toggleDynamicDropdown(group.category.id)}
-                                  >
-                                    <span>
-                                      <TranslatableText>{group.category.name}</TranslatableText>
-                                    </span>
-                                    <motion.div
-                                      animate={{ rotate: dynamicDropdownStates[group.category.id] ? 180 : 0 }}
-                                      transition={{ duration: 0.2 }}
-                                    >
-                                      <ChevronDown className="h-4 w-4" />
-                                    </motion.div>
-                                  </button>
-                                  
-                                  <AnimatePresence>
-                                    {dynamicDropdownStates[group.category.id] && (
-                                      <motion.div 
-                                        className="ml-4 space-y-1"
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        exit={{ opacity: 0, height: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                      >
-                                        {group.pages.map((page, index) => (
-                                          <motion.div
-                                            key={page.slug}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                          >
-                                            <Link 
-                                              href={`/${group.category.name.en.toLowerCase().replace(/\s+/g, '-')}/${page.slug}`}
-                                              className="block py-2 text-sm text-gray-500 hover:text-indigo-600 transition-colors"
-                                              onClick={() => setIsOpen(false)}
-                                            >
-                                              {getLocalizedTitle(page.title)}
-                                            </Link>
-                                          </motion.div>
-                                        ))}
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="py-2 text-sm text-gray-500">
-                              No pages available
-                            </div>
-                          )}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+
                 </nav>
               </div>
             </motion.div>

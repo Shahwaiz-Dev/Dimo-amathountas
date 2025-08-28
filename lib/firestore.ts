@@ -407,6 +407,7 @@ export interface PageCategory {
   navOrder?: number; // Added for navbar sorting
   showInNavbar?: boolean; // Added for navbar filtering
   parentCategory?: string; // Added for subcategories
+  slug?: string; // Added for URL-friendly names
 }
 
 export async function getPageCategories(): Promise<PageCategory[]> {
@@ -433,7 +434,23 @@ export async function deletePageCategory(id: string): Promise<void> {
   await deleteDoc(doc(db, 'pageCategories', id));
 }
 
-// Enhanced category functions for navbar and subcategories
+
+
+export async function getNavbarCategories(): Promise<PageCategory[]> {
+  try {
+    const snapshot = await getDocs(collection(db, 'pageCategories'));
+    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageCategory));
+    
+    // Return only categories that should be shown in navbar
+    return categories
+      .filter(cat => cat.isActive && cat.showInNavbar)
+      .sort((a, b) => (a.navOrder ?? 999) - (b.navOrder ?? 999));
+  } catch (error) {
+    console.error('Error fetching navbar categories:', error);
+    return [];
+  }
+}
+
 export async function getCategoriesWithSubcategories(): Promise<PageCategory[]> {
   try {
     const snapshot = await getDocs(collection(db, 'pageCategories'));
@@ -448,21 +465,6 @@ export async function getCategoriesWithSubcategories(): Promise<PageCategory[]> 
     });
   } catch (error) {
     console.error('Error fetching categories with subcategories:', error);
-    return [];
-  }
-}
-
-export async function getNavbarCategories(): Promise<PageCategory[]> {
-  try {
-    const snapshot = await getDocs(collection(db, 'pageCategories'));
-    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageCategory));
-    
-    // Return only categories that should be shown in navbar
-    return categories
-      .filter(cat => cat.isActive && cat.showInNavbar)
-      .sort((a, b) => (a.navOrder ?? 999) - (b.navOrder ?? 999));
-  } catch (error) {
-    console.error('Error fetching navbar categories:', error);
     return [];
   }
 }

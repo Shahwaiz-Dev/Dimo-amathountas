@@ -163,10 +163,34 @@ export function PageCategoriesManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate navbar category limit
+    if (formData.showInNavbar && !editingCategory) {
+      const currentNavbarCategories = categories.filter(cat => (cat as any).showInNavbar);
+      if (currentNavbarCategories.length >= 10) {
+        toast({
+          title: currentLang === 'el' ? "Σφάλμα" : "Error",
+          description: currentLang === 'el' ? "Δεν μπορείτε να δημιουργήσετε περισσότερες από 10 κατηγορίες στη γραμμή πλοήγησης" : "Cannot create more than 10 navbar categories",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
+    // Auto-generate slug if not provided
+    let finalSlug = formData.slug;
+    if (!finalSlug) {
+      finalSlug = formData.name.en.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .trim();
+    }
+    
     try {
       // Prepare data for submission, converting 'none' to undefined for parentCategory
       const submissionData = {
         ...formData,
+        slug: finalSlug,
         parentCategory: formData.parentCategory === 'none' ? undefined : formData.parentCategory
       };
 
@@ -261,15 +285,29 @@ export function PageCategoriesManagement() {
       {/* Categories Management Section */}
       <div className="bg-white rounded-lg border p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">
-            <TranslatableText>{{ en: 'Page Categories', el: 'Κατηγορίες Σελίδων' }}</TranslatableText>
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold">
+              <TranslatableText>{{ en: 'Page Categories', el: 'Κατηγορίες Σελίδων' }}</TranslatableText>
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              <TranslatableText>{{ en: 'Maximum 10 categories can be shown in the navbar', el: 'Μέγιστο 10 κατηγορίες μπορούν να εμφανιστούν στη γραμμή πλοήγησης' }}</TranslatableText>
+            </p>
+            <div className="flex items-center gap-4 mt-2">
+              <Badge variant="outline" className="text-xs">
+                <TranslatableText>{{ en: 'Navbar Categories', el: 'Κατηγορίες Γραμμής Πλοήγησης' }}</TranslatableText>: {categories.filter(cat => (cat as any).showInNavbar).length}/10
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                <TranslatableText>{{ en: 'Total Categories', el: 'Συνολικές Κατηγορίες' }}</TranslatableText>: {categories.length}
+              </Badge>
+            </div>
+          </div>
           <Button 
             onClick={() => {
               setFormData({ ...formData, order: categories.length });
               setIsDialogOpen(true);
             }}
             className="bg-primary text-white font-semibold"
+            disabled={categories.filter(cat => (cat as any).showInNavbar).length >= 10}
           >
             <Plus className="h-4 w-4 mr-2" />
             <TranslatableText>{{ en: 'Create Category', el: 'Δημιουργία Κατηγορίας' }}</TranslatableText>
@@ -618,7 +656,7 @@ export function PageCategoriesManagement() {
                   className="mt-1"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  <TranslatableText>{{ en: 'URL-friendly version of the category name (e.g., "citizen-services")', el: 'Φιλικό προς URL έκδοση του ονόματος της κατηγορίας (π.χ., "υπηρεσίες-πολιτών")' }}</TranslatableText>
+                  <TranslatableText>{{ en: 'URL-friendly version of the category name (e.g., "citizen-services"). Leave empty to auto-generate from the English name.', el: 'Φιλικό προς URL έκδοση του ονόματος της κατηγορίας (π.χ., "υπηρεσίες-πολιτών"). Αφήστε κενό για αυτόματη δημιουργία από το αγγλικό όνομα.' }}</TranslatableText>
                 </p>
               </div>
 
@@ -629,6 +667,7 @@ export function PageCategoriesManagement() {
                     id="showInNavbar"
                     checked={formData.showInNavbar}
                     onCheckedChange={(checked) => setFormData({ ...formData, showInNavbar: checked })}
+                    disabled={!formData.showInNavbar && categories.filter(cat => (cat as any).showInNavbar).length >= 10}
                   />
                   <Label htmlFor="showInNavbar" className="text-sm font-medium">
                     <TranslatableText>{{ en: 'Show in Navbar', el: 'Εμφάνιση στη Γραμμή Πλοήγησης' }}</TranslatableText>
@@ -653,6 +692,29 @@ export function PageCategoriesManagement() {
                   </p>
                 </div>
               </div>
+              
+              {/* Navbar Limit Warning */}
+              {!formData.showInNavbar && categories.filter(cat => (cat as any).showInNavbar).length >= 10 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-yellow-800">
+                        <TranslatableText>{{ en: 'Navbar Limit Reached', el: 'Έφτασε το Όριο Γραμμής Πλοήγησης' }}</TranslatableText>
+                      </h3>
+                      <div className="mt-2 text-sm text-yellow-700">
+                        <p>
+                          <TranslatableText>{{ en: 'You have reached the maximum of 10 navbar categories. Disable another category first to enable this one.', el: 'Έχετε φτάσει στο μέγιστο των 10 κατηγοριών γραμμής πλοήγησης. Απενεργοποιήστε πρώτα μια άλλη κατηγορία για να ενεργοποιήσετε αυτή.' }}</TranslatableText>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Form Actions */}
