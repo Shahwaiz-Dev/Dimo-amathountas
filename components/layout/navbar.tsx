@@ -197,40 +197,40 @@ export function Navbar() {
       </motion.div>
       
       {/* Main Navbar */}
-      <nav className="bg-white shadow border-b border-border sticky top-0 z-40">
+      <nav className="bg-white shadow border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4">
           {/* Three-Column Layout */}
           <div className="grid grid-cols-12 gap-4 items-center h-24">
             
-            {/* Left Column - Logo & Branding (3 columns) */}
+            {/* Left Column - Logo & Branding (3 columns on desktop, 8 columns on mobile) */}
+          <motion.div 
+              className="col-span-8 lg:col-span-3 flex items-center justify-start gap-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
             <motion.div 
-              className="col-span-12 lg:col-span-3 flex items-center justify-center lg:justify-start gap-4"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              className="relative flex items-center" 
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
             >
-              <motion.div 
-                className="relative flex items-center" 
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Image 
-                  src="/logo.png" 
-                  alt="Logo" 
+              <Image 
+                src="/logo.png" 
+                alt="Logo" 
                   width={80} 
                   height={80} 
-                  className="rounded-full object-cover" 
-                />
-              </motion.div>
-              <div className="hidden sm:block">
-                <div className="font-extrabold text-lg xl:text-xl text-heading leading-tight">
-                  <TranslatableText>Agios Athanasios</TranslatableText>
-                </div>
-                <div className="text-xs xl:text-sm text-gray-500">
-                  <TranslatableText>Municipality</TranslatableText>
-                </div>
-              </div>
+                className="rounded-full object-cover" 
+              />
             </motion.div>
+              <div className="hidden xs:block sm:block">
+                <div className="font-extrabold text-base sm:text-lg xl:text-xl text-heading leading-tight">
+                <TranslatableText>Agios Athanasios</TranslatableText>
+              </div>
+                <div className="text-xs xl:text-sm text-gray-500">
+                <TranslatableText>Municipality</TranslatableText>
+              </div>
+            </div>
+          </motion.div>
 
             {/* Center Column - Navigation Links (6 columns) */}
             <div className="hidden lg:block col-span-6">
@@ -341,49 +341,50 @@ export function Navbar() {
                 </motion.div>
 
                 {/* Dynamic Categories from Admin */}
-                {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
-                  // Only show categories that have subcategories (dropdown behavior)
-                  const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
-                  
-                  // Skip categories without subcategories - they don't need to be in navbar
-                  if (!hasSubcategories) return null;
-                  
-                  return (
-                    <motion.div 
-                      key={category.id}
-                      className="relative group"
-                      onMouseEnter={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: true }))}
-                      onMouseLeave={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: false }))}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
-                    >
-                      {/* Category Button (Always a dropdown trigger) */}
-                      <button 
+            {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
+              // Only show categories that have subcategories (dropdown behavior)
+              const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
+              
+              // Skip categories without subcategories - they don't need to be in navbar
+              if (!hasSubcategories) return null;
+              
+              return (
+                <motion.div 
+                  key={category.id}
+                  className="relative group"
+                  onMouseEnter={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: true }))}
+                  onMouseLeave={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: false }))}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
+                >
+                  {/* Category Button (Always a dropdown trigger) */}
+                  <button 
                         className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group flex items-center gap-1 text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px]"
-                        onClick={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: !prev[category.id] }))}
-                      >
-                        <span className="relative">
-                          <TranslatableText>{category.name}</TranslatableText>
-                          <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-                        </span>
-                        <motion.div
-                          animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
+                    onClick={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: !prev[category.id] }))}
+                  >
+                    <span className="relative">
+                      <TranslatableText>{category.name}</TranslatableText>
+                      <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+                    </span>
+                    <motion.div
+                      animate={{ rotate: dynamicDropdownStates[category.id] ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
                           <ChevronDown className="h-3 w-3 xl:h-4 xl:w-4" />
-                        </motion.div>
-                      </button>
+                    </motion.div>
+                  </button>
                   
                   {/* Subcategories Dropdown with Links to Actual Pages */}
                   <AnimatePresence>
                     {dynamicDropdownStates[category.id] && (
                       <motion.div 
-                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-50"
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 z-[9999]"
                         variants={dropdownVariants}
                         initial="hidden"
                         animate="visible"
                         exit="exit"
+                        style={{ zIndex: 9999 }}
                       >
                         <div className="py-1">
                           {/* First, show subcategories */}
@@ -452,20 +453,50 @@ export function Navbar() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
+                </motion.div>
+              );
+            })}
               </div>
-            </div>
+          </div>
 
-            {/* Right Column - Language Switcher & Mobile Menu (3 columns) */}
-            <motion.div 
-              className="col-span-12 lg:col-span-3 flex items-center justify-center lg:justify-end gap-4"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 1.0 }}
-            >
-              {/* Desktop Language Switcher */}
+            {/* Right Column - Language Switcher & Mobile Menu (4 columns on mobile, 3 columns on desktop) */}
+          <motion.div 
+              className="col-span-4 lg:col-span-3 flex items-center justify-end gap-4"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+          >
+              {/* Mobile Language Switcher - Compact */}
+              <div className="flex lg:hidden items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <motion.button
+                  className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                    currentLang === 'en' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  onClick={() => setCurrentLang('en')}
+                  disabled={isTranslating}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  EN
+                </motion.button>
+                <motion.button
+                  className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
+                    currentLang === 'el' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  onClick={() => setCurrentLang('el')}
+                  disabled={isTranslating}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ΕΛ
+                </motion.button>
+              </div>
+
+            {/* Desktop Language Switcher */}
               <div className="hidden lg:flex items-center gap-1 bg-gray-100 rounded-lg p-1">
               <motion.button
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
@@ -495,13 +526,13 @@ export function Navbar() {
               </motion.button>
             </div>
 
-              {/* Mobile Menu Button */}
-              <motion.button
-                onClick={() => setIsOpen(!isOpen)}
+            {/* Mobile Menu Button */}
+            <motion.button
+              onClick={() => setIsOpen(!isOpen)}
                 className="relative w-10 h-10 flex flex-col justify-center items-center group lg:hidden"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
               <div className="relative w-6 h-6">
                 <motion.span
                   className="absolute top-0 left-0 w-6 h-0.5 bg-gray-700 rounded-full origin-center"
@@ -528,8 +559,8 @@ export function Navbar() {
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                 />
               </div>
-              </motion.button>
-            </motion.div>
+            </motion.button>
+          </motion.div>
           </div>
         </div>
       </nav>
@@ -562,36 +593,6 @@ export function Navbar() {
                   <h2 className="text-xl font-bold text-gray-900">
                     <TranslatableText>Menu</TranslatableText>
                   </h2>
-                  
-                  {/* Mobile Language Switcher */}
-                  <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                    <motion.button
-                      className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
-                        currentLang === 'en' 
-                          ? 'bg-white text-gray-900 shadow-sm' 
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                      onClick={() => setCurrentLang('en')}
-                      disabled={isTranslating}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      EN {isTranslating && currentLang !== 'en' && <span className="ml-1 animate-spin">⏳</span>}
-                    </motion.button>
-                    <motion.button
-                      className={`px-2 py-1 rounded-md text-xs font-medium transition-all duration-200 ${
-                        currentLang === 'el' 
-                          ? 'bg-white text-gray-900 shadow-sm' 
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                      onClick={() => setCurrentLang('el')}
-                      disabled={isTranslating}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      ΕΛ {isTranslating && currentLang !== 'el' && <span className="ml-1 animate-spin">⏳</span>}
-                    </motion.button>
-                  </div>
                   
                   <motion.button
                     onClick={() => setIsOpen(false)}

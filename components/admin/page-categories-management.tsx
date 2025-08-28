@@ -29,7 +29,9 @@ import {
   addPageCategory, 
   updatePageCategory, 
   deletePageCategory,
-  PageCategory
+  PageCategory,
+  getAllMunicipalityPages,
+  MunicipalityPage
 } from '@/lib/firestore';
 import { TranslatableText } from '@/components/translatable-content';
 import { HeartbeatLoader } from '@/components/ui/heartbeat-loader';
@@ -56,6 +58,7 @@ const CATEGORY_COLORS = [
 
 export function PageCategoriesManagement() {
   const [categories, setCategories] = useState<PageCategory[]>([]);
+  const [pages, setPages] = useState<MunicipalityPage[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<PageCategory | null>(null);
@@ -83,8 +86,12 @@ export function PageCategoriesManagement() {
 
   const loadCategories = useCallback(async () => {
     try {
-      const fetchedCategories = await getPageCategories();
+      const [fetchedCategories, fetchedPages] = await Promise.all([
+        getPageCategories(),
+        getAllMunicipalityPages()
+      ]);
       setCategories(fetchedCategories);
+      setPages(fetchedPages);
     } catch (error) {
       console.error('Error loading categories:', error);
       toast({
@@ -100,6 +107,11 @@ export function PageCategoriesManagement() {
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
+
+  // Helper function to get pages for a specific category
+  const getPagesForCategory = (categoryId: string) => {
+    return pages.filter(page => page.category === categoryId && page.isPublished);
+  };
 
   const resetForm = () => {
     setFormData({
@@ -371,6 +383,79 @@ export function PageCategoriesManagement() {
                               <span>• Slug: {(category as any).slug}</span>
                             )}
                           </div>
+                          
+                          {/* Pages under this category */}
+                          {(() => {
+                            const categoryPages = getPagesForCategory(category.id);
+                            const subcategoryPages = categories
+                              .filter(subcat => subcat.parentCategory === category.id)
+                              .flatMap(subcat => getPagesForCategory(subcat.id));
+                            const totalPages = categoryPages.length + subcategoryPages.length;
+                            
+                            return (
+                              <div className="mt-3 pt-3 border-t border-gray-100">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="text-sm font-medium text-gray-700">
+                                    <TranslatableText>{{ en: 'Pages in this category', el: 'Σελίδες σε αυτή την κατηγορία' }}</TranslatableText>
+                                  </h4>
+                                  <Badge variant="outline" className="text-xs">
+                                    {totalPages} <TranslatableText>{{ en: 'pages', el: 'σελίδες' }}</TranslatableText>
+                                  </Badge>
+                                </div>
+                                
+                                {/* Direct pages under main category */}
+                                {categoryPages.length > 0 && (
+                                  <div className="mb-2">
+                                    <div className="text-xs font-medium text-gray-600 mb-1">
+                                      <TranslatableText>{{ en: 'Direct pages:', el: 'Άμεσες σελίδες:' }}</TranslatableText>
+                                    </div>
+                                    <div className="space-y-1">
+                                      {categoryPages.map((page) => (
+                                        <div key={page.id} className="flex items-center justify-between text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded">
+                                          <span className="truncate flex-1">
+                                            <TranslatableText>{page.title}</TranslatableText>
+                                          </span>
+                                          <span className="text-gray-400 ml-2">/{page.slug}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* Pages under subcategories */}
+                                {categories
+                                  .filter(subcat => subcat.parentCategory === category.id)
+                                  .map(subcat => {
+                                    const subcatPages = getPagesForCategory(subcat.id);
+                                    if (subcatPages.length === 0) return null;
+                                    
+                                    return (
+                                      <div key={subcat.id} className="mb-2">
+                                        <div className="text-xs font-medium text-gray-600 mb-1">
+                                          <TranslatableText>{{ en: 'Under', el: 'Κάτω από' }}</TranslatableText> <TranslatableText>{subcat.name}</TranslatableText>:
+                                        </div>
+                                        <div className="space-y-1">
+                                          {subcatPages.map((page) => (
+                                            <div key={page.id} className="flex items-center justify-between text-xs text-gray-600 bg-blue-50 px-2 py-1 rounded ml-4">
+                                              <span className="truncate flex-1">
+                                                <TranslatableText>{page.title}</TranslatableText>
+                                              </span>
+                                              <span className="text-gray-400 ml-2">/{page.slug}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                
+                                {totalPages === 0 && (
+                                  <div className="text-xs text-gray-400 italic">
+                                    <TranslatableText>{{ en: 'No pages created for this category yet', el: 'Δεν έχουν δημιουργηθεί σελίδες για αυτή την κατηγορία ακόμα' }}</TranslatableText>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                       
