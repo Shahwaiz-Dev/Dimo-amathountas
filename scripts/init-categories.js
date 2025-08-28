@@ -32,6 +32,7 @@ const defaultCategories = [
     icon: 'building',
     color: 'blue',
     isActive: true,
+    showInNavbar: true,
     order: 0
   },
   {
@@ -46,6 +47,7 @@ const defaultCategories = [
     icon: 'users',
     color: 'green',
     isActive: true,
+    showInNavbar: true,
     order: 1
   },
   {
@@ -60,6 +62,7 @@ const defaultCategories = [
     icon: 'settings',
     color: 'purple',
     isActive: true,
+    showInNavbar: true,
     order: 2
   },
   {
@@ -74,6 +77,7 @@ const defaultCategories = [
     icon: 'heart',
     color: 'pink',
     isActive: true,
+    showInNavbar: true,
     order: 3
   }
 ];

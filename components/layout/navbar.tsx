@@ -120,6 +120,15 @@ export function Navbar() {
       const fetchedNavbarCategories = await getNavbarCategories();
       console.log('Navbar categories loaded:', fetchedNavbarCategories);
       setNavbarCategories(fetchedNavbarCategories);
+      
+      // Debug: Log all categories and their showInNavbar status
+      const allCategories = await getPageCategories();
+      console.log('All categories with navbar status:', allCategories.map(cat => ({
+        name: cat.name.en,
+        isActive: cat.isActive,
+        showInNavbar: cat.showInNavbar,
+        hasShowInNavbar: cat.hasOwnProperty('showInNavbar')
+      })));
     } catch (error) {
       console.error('Error loading navbar categories:', error);
     } finally {

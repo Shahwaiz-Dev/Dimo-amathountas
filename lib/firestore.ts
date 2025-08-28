@@ -180,7 +180,7 @@ export interface MunicipalityPage {
   lastUpdated: Date;
   isPublished: boolean;
   createdAt: Date;
-  layout?: 'layout1' | 'layout2' | 'layout3';
+  layout?: 'layout1' | 'layout2' | 'layout3' | 'layout4';
 }
 
 export async function getMunicipalityPage(slug: string): Promise<MunicipalityPage | null> {
@@ -439,8 +439,17 @@ export async function getNavbarCategories(): Promise<PageCategory[]> {
     const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageCategory));
     
     // Return only categories that should be shown in navbar
+    // Handle cases where showInNavbar property might be missing (legacy data)
     return categories
-      .filter(cat => cat.isActive && cat.showInNavbar);
+      .filter(cat => {
+        const isActive = cat.isActive !== false; // Default to true if undefined
+        const showInNavbar = cat.showInNavbar === true; // Must be explicitly true
+        
+        console.log(`Category ${cat.name?.en}: isActive=${isActive}, showInNavbar=${showInNavbar}, hasProperty=${cat.hasOwnProperty('showInNavbar')}`);
+        
+        return isActive && showInNavbar;
+      })
+      .slice(0, 10); // Enforce maximum of 10 navbar categories
   } catch (error) {
     console.error('Error fetching navbar categories:', error);
     return [];

@@ -43,7 +43,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 
 
-type LayoutType = 'layout1' | 'layout2' | 'layout3';
+type LayoutType = 'layout1' | 'layout2' | 'layout3' | 'layout4';
 
 export function PagesManagement() {
   const [pages, setPages] = useState<MunicipalityPage[]>([]);
@@ -633,7 +633,7 @@ export function PagesManagement() {
             {/* Layout Selection */}
             <div>
               <Label className="text-sm font-medium mb-3 block">Page Layout</Label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Layout 1 - Standard */}
                 <div 
                   className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
@@ -711,6 +711,34 @@ export function PagesManagement() {
                     <h4 className="font-semibold text-sm">Layout 3</h4>
                     <p className="text-xs text-gray-500">Minimal Layout</p>
                     <p className="text-xs text-gray-400 mt-1">Image Banner + Content</p>
+                  </div>
+                </div>
+
+                {/* Layout 4 - Split Image & Content */}
+                <div 
+                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                    formData.layout === 'layout4' 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setFormData({ ...formData, layout: 'layout4' })}
+                >
+                  <div className="text-center mb-3">
+                    <div className="flex gap-2 mb-2">
+                      <div className="w-1/2 h-8 bg-gray-300 rounded"></div>
+                      <div className="w-1/2 h-8 bg-gray-300 rounded"></div>
+                    </div>
+                    <div className="w-1/2 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
+                    <div className="w-3/4 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
+                    <div className="w-1/2 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
+                    <div className="w-5/6 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
+                    <div className="w-1/2 h-2 bg-gray-300 rounded mb-2 mx-auto"></div>
+                    <div className="w-3/4 h-2 bg-gray-300 rounded mx-auto"></div>
+                  </div>
+                  <div className="text-center">
+                    <h4 className="font-semibold text-sm">Layout 4</h4>
+                    <p className="text-xs text-gray-500">Split Layout</p>
+                    <p className="text-xs text-gray-400 mt-1">50% Image + 50% Content</p>
                   </div>
                 </div>
               </div>
