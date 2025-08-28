@@ -83,7 +83,7 @@ export function PageCategoriesManagement() {
     isActive: true,
     order: 0,
     parentCategory: 'none',
-    showInNavbar: false,
+    showInNavbar: true, // Changed to true by default
     navOrder: 0,
     slug: '',
   });
@@ -117,7 +117,7 @@ export function PageCategoriesManagement() {
       isActive: true,
       order: 0,
       parentCategory: 'none',
-      showInNavbar: false,
+      showInNavbar: true, // Changed to true by default
       navOrder: 0,
       slug: '',
     });
@@ -301,17 +301,31 @@ export function PageCategoriesManagement() {
               </Badge>
             </div>
           </div>
-          <Button 
-            onClick={() => {
-              setFormData({ ...formData, order: categories.length });
-              setIsDialogOpen(true);
-            }}
-            className="bg-primary text-white font-semibold"
-            disabled={categories.filter(cat => (cat as any).showInNavbar).length >= 10}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            <TranslatableText>{{ en: 'Create Category', el: 'Δημιουργία Κατηγορίας' }}</TranslatableText>
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => {
+                setFormData({ ...formData, order: categories.length, parentCategory: 'none' });
+                setIsDialogOpen(true);
+              }}
+              className="bg-primary text-white font-semibold"
+              disabled={categories.filter(cat => (cat as any).showInNavbar).length >= 10}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              <TranslatableText>{{ en: 'Create Category', el: 'Δημιουργία Κατηγορίας' }}</TranslatableText>
+            </Button>
+            <Button 
+              onClick={() => {
+                // This will open the form, user needs to select parent category
+                setFormData({ ...formData, order: categories.length, parentCategory: 'none' });
+                setIsDialogOpen(true);
+              }}
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary hover:text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              <TranslatableText>{{ en: 'Create Subcategory', el: 'Δημιουργία Υποκατηγορίας' }}</TranslatableText>
+            </Button>
+          </div>
         </div>
 
         {/* Categories List */}
@@ -433,6 +447,23 @@ export function PageCategoriesManagement() {
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              parentCategory: category.id,
+                              order: categories.length,
+                              showInNavbar: false, // Subcategories don't show in navbar by default
+                            });
+                            setIsDialogOpen(true);
+                          }}
+                          className="text-green-600 hover:text-green-700"
+                          title={currentLang === 'el' ? 'Δημιουργία υποκατηγορίας' : 'Create subcategory'}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleDelete(category.id)}
                           className="text-red-600 hover:text-red-700"
                         >
@@ -446,6 +477,55 @@ export function PageCategoriesManagement() {
             })
           )}
         </div>
+        
+        {/* How to Create Pages Section */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            <TranslatableText>{{ en: 'How to Create Pages', el: 'Πώς να Δημιουργήσετε Σελίδες' }}</TranslatableText>
+          </h3>
+          <div className="text-sm text-blue-800 space-y-2">
+            <p>
+              <TranslatableText>{{ en: '1. First, create categories and subcategories here', el: '1. Πρώτα, δημιουργήστε κατηγορίες και υποκατηγορίες εδώ' }}</TranslatableText>
+            </p>
+            <p>
+              <TranslatableText>{{ en: '2. Then go to Admin > Municipality Pages to create pages for your categories', el: '2. Μετά πηγαίνετε στο Admin > Municipality Pages για να δημιουργήσετε σελίδες για τις κατηγορίες σας' }}</TranslatableText>
+            </p>
+            <p>
+              <TranslatableText>{{ en: '3. When creating a page, select the appropriate category from the dropdown', el: '3. Όταν δημιουργείτε μια σελίδα, επιλέξτε την κατάλληλη κατηγορία από το dropdown' }}</TranslatableText>
+            </p>
+            <p>
+              <TranslatableText>{{ en: '4. Pages will automatically appear under their respective categories in the navbar', el: '4. Οι σελίδες θα εμφανιστούν αυτόματα κάτω από τις αντίστοιχες κατηγορίες στη γραμμή πλοήγησης' }}</TranslatableText>
+            </p>
+          </div>
+        </div>
+        
+        {/* Debug Section - Navbar Categories */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+          <h3 className="text-lg font-semibold text-yellow-900 mb-3">
+            <TranslatableText>{{ en: 'Debug: Navbar Categories Status', el: 'Debug: Κατάσταση Κατηγοριών Γραμμής Πλοήγησης' }}</TranslatableText>
+          </h3>
+          <div className="text-sm text-yellow-800 space-y-2">
+            <p>
+              <TranslatableText>{{ en: 'Categories that should appear in navbar:', el: 'Κατηγορίες που θα πρέπει να εμφανιστούν στη γραμμή πλοήγησης:' }}</TranslatableText>
+            </p>
+            <div className="bg-white p-3 rounded border text-xs">
+              {categories
+                .filter(cat => (cat as any).showInNavbar)
+                .map(cat => (
+                  <div key={cat.id} className="mb-2 p-2 bg-gray-50 rounded">
+                    <strong>{cat.name.en}</strong> - 
+                    Active: {cat.isActive ? 'Yes' : 'No'}, 
+                    NavOrder: {(cat as any).navOrder || 0}
+                  </div>
+                ))}
+              {categories.filter(cat => (cat as any).showInNavbar).length === 0 && (
+                <p className="text-gray-500 italic">
+                  <TranslatableText>{{ en: 'No categories are set to show in navbar', el: 'Δεν υπάρχουν κατηγορίες που να έχουν ρυθμιστεί για εμφάνιση στη γραμμή πλοήγησης' }}</TranslatableText>
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Create/Edit Category Dialog */}
@@ -455,10 +535,17 @@ export function PageCategoriesManagement() {
             <DialogTitle>
               {editingCategory ? (
                 <TranslatableText>{{ en: 'Edit Category', el: 'Επεξεργασία Κατηγορίας' }}</TranslatableText>
+              ) : formData.parentCategory && formData.parentCategory !== 'none' ? (
+                <TranslatableText>{{ en: 'Create New Subcategory', el: 'Δημιουργία Νέας Υποκατηγορίας' }}</TranslatableText>
               ) : (
                 <TranslatableText>{{ en: 'Create New Category', el: 'Δημιουργία Νέας Κατηγορίας' }}</TranslatableText>
               )}
             </DialogTitle>
+            {!editingCategory && formData.parentCategory && formData.parentCategory !== 'none' && (
+              <p className="text-sm text-gray-600 mt-2">
+                <TranslatableText>{{ en: 'You are creating a subcategory. The parent category is already selected.', el: 'Δημιουργείτε μια υποκατηγορία. Η γονική κατηγορία έχει ήδη επιλεγεί.' }}</TranslatableText>
+              </p>
+            )}
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}

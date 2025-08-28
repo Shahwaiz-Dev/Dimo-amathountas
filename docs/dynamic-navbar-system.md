@@ -1,5 +1,25 @@
 # Dynamic Navbar System
 
+## ⚠️ Current Issue - Categories Not Showing in Navbar
+
+If your categories are not appearing in the navbar, please check:
+
+1. **Category Settings**: Ensure the category has:
+   - `isActive: true`
+   - `showInNavbar: true`
+   - A valid `navOrder` value
+
+2. **Debug Steps**:
+   - Go to Admin > Page Categories
+   - Look at the "Debug: Navbar Categories Status" section
+   - Check if your categories appear in the list
+   - Verify the console logs in browser developer tools
+
+3. **Common Solutions**:
+   - Edit the category and ensure "Show in Navbar" is checked
+   - Set a "Navbar Order" value (lower numbers appear first)
+   - Make sure the category is "Active"
+
 ## Overview
 
 The dynamic navbar system allows administrators to create up to 10 categories that will appear in the main navigation bar. Each category can have subcategories, and both categories and subcategories can have associated pages.

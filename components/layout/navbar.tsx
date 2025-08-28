@@ -105,6 +105,7 @@ export function Navbar() {
     try {
       setLoadingCategories(true);
       const fetchedCategories = await getPageCategories();
+      console.log('All categories loaded:', fetchedCategories);
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -117,6 +118,7 @@ export function Navbar() {
     try {
       setLoadingNavbarCategories(true);
       const fetchedNavbarCategories = await getNavbarCategories();
+      console.log('Navbar categories loaded:', fetchedNavbarCategories);
       setNavbarCategories(fetchedNavbarCategories);
     } catch (error) {
       console.error('Error loading navbar categories:', error);
