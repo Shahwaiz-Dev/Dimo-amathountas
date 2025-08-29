@@ -237,11 +237,13 @@ export function PagesManagement() {
     : pages.filter(page => page.category === selectedCategory);
 
   const getCategoryStats = () => {
-    // Only include dynamic categories
-    return categories.map(cat => ({
-      ...cat,
-      count: pages.filter(page => page.category === cat.id).length
-    }));
+    // Only include dynamic categories, excluding the specific category
+    return categories
+      .filter(cat => cat.id !== 'qX0O2NXzke1jmXxZIJpS')
+      .map(cat => ({
+        ...cat,
+        count: pages.filter(page => page.category === cat.id).length
+      }));
   };
 
   // Category management functions
@@ -363,40 +365,40 @@ export function PagesManagement() {
               <SelectItem value="all">
                 <TranslatableText>{{ en: 'All categories', el: 'Όλες οι κατηγορίες' }}</TranslatableText>
               </SelectItem>
-              {/* Dynamic categories with subcategories */}
-              {(() => {
-                // Organize categories hierarchically
-                const mainCategories = categories.filter(cat => !cat.parentCategory);
-                const subcategories = categories.filter(cat => cat.parentCategory);
-                
-                return (
-                  <>
-                    {/* Main categories */}
-                    {mainCategories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <span className="font-medium"><TranslatableText>{category.name}</TranslatableText></span>
-                      </SelectItem>
-                    ))}
-                    
-                    {/* Subcategories (indented) */}
-                    {subcategories.map((subcat) => {
-                      const parent = categories.find(cat => cat.id === subcat.parentCategory);
+                                  {/* Dynamic categories with subcategories */}
+                    {(() => {
+                      // Organize categories hierarchically, excluding the specific category
+                      const mainCategories = categories.filter(cat => !cat.parentCategory && cat.id !== 'qX0O2NXzke1jmXxZIJpS');
+                      const subcategories = categories.filter(cat => cat.parentCategory && cat.id !== 'qX0O2NXzke1jmXxZIJpS');
+                      
                       return (
-                        <SelectItem key={subcat.id} value={subcat.id}>
-                          <div className="flex items-center">
-                            <span className="ml-4 text-gray-600">└─ <TranslatableText>{subcat.name}</TranslatableText></span>
-                            {parent && (
-                              <span className="text-xs text-gray-400 ml-2">
-                                (<TranslatableText>{{ en: 'under', el: 'υπό' }}</TranslatableText> <TranslatableText>{parent.name}</TranslatableText>)
-                              </span>
-                            )}
-                          </div>
-                        </SelectItem>
+                        <>
+                          {/* Main categories */}
+                          {mainCategories.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              <span className="font-medium"><TranslatableText>{category.name}</TranslatableText></span>
+                            </SelectItem>
+                          ))}
+                          
+                          {/* Subcategories (indented) */}
+                          {subcategories.map((subcat) => {
+                            const parent = categories.find(cat => cat.id === subcat.parentCategory);
+                            return (
+                              <SelectItem key={subcat.id} value={subcat.id}>
+                                <div className="flex items-center">
+                                  <span className="ml-4 text-gray-600">└─ <TranslatableText>{subcat.name}</TranslatableText></span>
+                                  {parent && (
+                                    <span className="text-xs text-gray-400 ml-2">
+                                      (<TranslatableText>{{ en: 'under', el: 'υπό' }}</TranslatableText> <TranslatableText>{parent.name}</TranslatableText>)
+                                    </span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </>
                       );
-                    })}
-                  </>
-                );
-              })()}
+                    })()}
             </SelectContent>
           </Select>
         </div>
@@ -543,9 +545,9 @@ export function PagesManagement() {
                   <SelectContent className="bg-white border border-gray-200">
                     {/* Dynamic categories with subcategories */}
                     {(() => {
-                      // Organize categories hierarchically
-                      const mainCategories = categories.filter(cat => !cat.parentCategory);
-                      const subcategories = categories.filter(cat => cat.parentCategory);
+                      // Organize categories hierarchically, excluding the specific category
+                      const mainCategories = categories.filter(cat => !cat.parentCategory && cat.id !== 'qX0O2NXzke1jmXxZIJpS');
+                      const subcategories = categories.filter(cat => cat.parentCategory && cat.id !== 'qX0O2NXzke1jmXxZIJpS');
                       
                       return (
                         <>

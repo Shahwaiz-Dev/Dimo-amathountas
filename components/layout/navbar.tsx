@@ -273,17 +273,14 @@ export function Navbar() {
               <Image 
                 src="/logo.png" 
                 alt="Logo" 
-                  width={80} 
-                  height={80} 
+                  width={100} 
+                  height={100} 
                 className="rounded-full object-cover" 
               />
             </motion.div>
               <div className="hidden xs:block sm:block">
-                <div className="font-extrabold text-base sm:text-lg xl:text-xl text-heading leading-tight">
+                <div className="font-extrabold text-lg sm:text-xl xl:text-2xl text-heading leading-tight">
                 <TranslatableText>Dimos Amathountas</TranslatableText>
-              </div>
-                <div className="text-xs xl:text-sm text-gray-500">
-                <TranslatableText>Municipality</TranslatableText>
               </div>
             </div>
           </motion.div>

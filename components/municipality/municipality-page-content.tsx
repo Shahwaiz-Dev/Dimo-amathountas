@@ -104,7 +104,7 @@ export function MunicipalityPageContent({ pageData }: MunicipalityPageContentPro
     );
   }
 
-  const categoryLabel = getCategoryLabel(pageData.category);
+
 
   // Function to get the correct route for a page based on its category
   const getPageRoute = (page: MunicipalityPage) => {
@@ -138,12 +138,6 @@ export function MunicipalityPageContent({ pageData }: MunicipalityPageContentPro
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground mb-1">
-                  {currentLang === 'el' ? 'Κατηγορία' : 'Category'}
-                </h4>
-                <p className="text-sm">{getBilingualTitle(categoryLabel)}</p>
-              </div>
               <div>
                 <h4 className="font-medium text-sm text-muted-foreground mb-1">
                   {currentLang === 'el' ? 'Τελευταία Ενημέρωση' : 'Last Updated'}
@@ -319,9 +313,6 @@ export function MunicipalityPageContent({ pageData }: MunicipalityPageContentPro
                       )}
                     </span>
                   </div>
-                  <Badge variant="secondary">
-                    {getBilingualTitle(categoryLabel)}
-                  </Badge>
                 </div>
                 
                 <Separator className="mb-6" />

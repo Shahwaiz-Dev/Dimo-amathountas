@@ -87,8 +87,6 @@ export function MunicipalityIndex({ pages }: MunicipalityIndexProps) {
       {/* Pages Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {publishedPages.map((page) => {
-          const categoryLabel = getCategoryLabel(page.category);
-          
           return (
             <Card key={page.id} className="group hover:shadow-lg transition-all duration-200">
               <CardHeader className="pb-4">
@@ -96,9 +94,6 @@ export function MunicipalityIndex({ pages }: MunicipalityIndexProps) {
                   <div className="text-primary">
                     {getCategoryIcon(page.category)}
                   </div>
-                  <Badge variant="secondary" className="text-xs">
-                    {getBilingualTitle(categoryLabel)}
-                  </Badge>
                 </div>
                 
                 <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
