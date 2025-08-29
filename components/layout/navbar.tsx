@@ -770,24 +770,7 @@ export function Navbar() {
                     );
                   })}
                   
-                  {/* Contact Link in Mobile Menu - Added after categories */}
-                  {!loadingAppearance && (
-                    <motion.div 
-                      custom={10} 
-                      variants={menuItemVariants} 
-                      initial="hidden" 
-                      animate="visible"
-                    >
-                      <Link
-                        href="/contact"
-                        className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-                        style={{ textDecoration: 'none' }}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <TranslatableText>Contact</TranslatableText>
-                      </Link>
-                    </motion.div>
-                  )}
+
 
                 </nav>
               </div>

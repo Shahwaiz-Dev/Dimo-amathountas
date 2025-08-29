@@ -21,13 +21,16 @@ import {
   Users,
   Heart,
   Globe,
-  Palette
+  Palette,
+  ChevronDown,
+  ChevronRight,
+  File
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TranslatableText } from '@/components/translatable-content';
 import { motion } from 'framer-motion';
 import { SimpleHeartbeatLoader } from '@/components/ui/heartbeat-loader';
-import { getPageCategories, PageCategory } from '@/lib/firestore';
+import { getPageCategories, PageCategory, getAllMunicipalityPages, MunicipalityPage } from '@/lib/firestore';
 import { useTranslation } from '@/hooks/useTranslation';
 
 const navigation = [
@@ -66,28 +69,35 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [pageCategories, setPageCategories] = useState<PageCategory[]>([]);
+  const [pages, setPages] = useState<MunicipalityPage[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const pathname = usePathname();
   const safePathname = pathname || '';
   const { currentLang, setCurrentLang, isTranslating } = useTranslation();
 
-  // Load page categories from database
+  // Load page categories and pages from database
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadCategoriesAndPages = async () => {
       try {
         setLoadingCategories(true);
-        const categories = await getPageCategories();
+        const [categories, allPages] = await Promise.all([
+          getPageCategories(),
+          getAllMunicipalityPages()
+        ]);
         setPageCategories(categories);
+        setPages(allPages);
       } catch (error) {
-        console.error('Error loading page categories:', error);
-        // Fallback to empty array if loading fails
+        console.error('Error loading page categories and pages:', error);
+        // Fallback to empty arrays if loading fails
         setPageCategories([]);
+        setPages([]);
       } finally {
         setLoadingCategories(false);
       }
     };
 
-    loadCategories();
+    loadCategoriesAndPages();
   }, []);
 
   // Check if user is already authenticated on component mount
@@ -118,6 +128,22 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const handleLogout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('adminAuthenticated');
+  };
+
+  const toggleCategoryExpansion = (categoryId: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  const getCategoryPages = (categoryId: string) => {
+    return pages.filter(page => page.category === categoryId && page.isPublished);
   };
 
   // Show password screen if not authenticated
@@ -249,7 +275,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 </Link>
               );
             })}
-            {/* Page category quick links */}
+            {/* Page categories with dropdown */}
             <div className="mt-6">
               <div className="text-xs text-muted-foreground mb-2 px-2">
                 <TranslatableText>{{ en: 'Page Categories', el: 'Κατηγορίες Σελίδων' }}</TranslatableText>
@@ -266,23 +292,81 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                   .filter(category => category.isActive !== false)
                   .map((category) => {
                     const IconComponent = getIconComponent(category.icon || 'building');
-                    const isActive = safePathname.startsWith('/admin/pages') && 
+                    const isCategoryActive = safePathname.startsWith('/admin/pages') && 
                       (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('category') === category.id);
+                    const categoryPages = getCategoryPages(category.id);
+                    const isExpanded = expandedCategories.has(category.id);
                     
                     return (
-                      <Link
-                        key={category.id}
-                        href={`/admin/pages?category=${category.id}`}
-                        className={cn(
-                          "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
-                          isActive
-                            ? "bg-primary/10 text-primary"
-                            : "text-body hover:bg-accent/20 hover:text-primary"
+                      <div key={category.id} className="mb-1">
+                        {/* Category Header */}
+                        <div className="flex items-center">
+                          <Link
+                            href={`/admin/pages?category=${category.id}`}
+                            className={cn(
+                              "group flex-1 flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                              isCategoryActive
+                                ? "bg-primary/10 text-primary"
+                                : "text-body hover:bg-accent/20 hover:text-primary"
+                            )}
+                          >
+                            <IconComponent className="mr-3 h-4 w-4" />
+                            <TranslatableText>{category.name}</TranslatableText>
+                            <span className="ml-auto text-xs bg-muted px-1.5 py-0.5 rounded-full">
+                              {categoryPages.length}
+                            </span>
+                          </Link>
+                          {categoryPages.length > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="ml-1 p-1 h-8 w-8"
+                              onClick={() => toggleCategoryExpansion(category.id)}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="h-3 w-3" />
+                              ) : (
+                                <ChevronRight className="h-3 w-3" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {/* Pages Dropdown */}
+                        {isExpanded && categoryPages.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="ml-6 mt-1 space-y-1"
+                          >
+                            {categoryPages.map((page) => {
+                              const isPageActive = safePathname === `/admin/pages/${page.slug}` || 
+                                (safePathname === '/admin/pages' && typeof window !== 'undefined' && 
+                                 new URLSearchParams(window.location.search).get('edit') === page.id);
+                              
+                              return (
+                                <Link
+                                  key={page.id}
+                                  href={`/admin/pages?edit=${page.id}`}
+                                  className={cn(
+                                    "group flex items-center px-2 py-1.5 text-xs rounded-md transition-colors",
+                                    isPageActive
+                                      ? "bg-primary/10 text-primary"
+                                      : "text-muted-foreground hover:bg-accent/20 hover:text-body"
+                                  )}
+                                >
+                                  <File className="mr-2 h-3 w-3" />
+                                  <span className="truncate">
+                                    <TranslatableText>{page.title}</TranslatableText>
+                                  </span>
+                                </Link>
+                              );
+                            })}
+                          </motion.div>
                         )}
-                      >
-                        <IconComponent className="mr-3 h-4 w-4" />
-                        <TranslatableText>{category.name}</TranslatableText>
-                      </Link>
+                      </div>
                     );
                   })
               ) : (
