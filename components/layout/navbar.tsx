@@ -92,9 +92,9 @@ export function Navbar() {
   const { settings: appearanceSettings, loading: loadingAppearance } = useAppearanceSettings();
   
   // Fallback to default navigation order if settings fail to load
-  const navigationOrder = loadingAppearance || !appearanceSettings?.mainNavigationOrder 
-    ? ['home', 'news', 'events', 'contact', 'museums']
-    : appearanceSettings.mainNavigationOrder;
+  const navigationOrder = loadingAppearance || !appearanceSettings?.mainNavigationOrder
+    ? ['contact']
+    : appearanceSettings.mainNavigationOrder.filter(item => item !== 'home' && item !== 'news' && item !== 'events' && item !== 'museums');
 
   const loadMunicipalityPages = async () => {
     try {
@@ -171,59 +171,8 @@ export function Navbar() {
   const renderMainNavigationItem = (item: string, index: number) => {
     const baseDelay = 0.4;
     const itemDelay = baseDelay + (index * 0.1);
-    
+
     switch (item) {
-      case 'home':
-        return (
-          <motion.div
-            key="home"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: itemDelay }}
-          >
-            <Link href="/" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px] truncate" style={{ textDecoration: 'none' }}>
-              <span className="relative">
-                <TranslatableText>Home</TranslatableText>
-                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-              </span>
-            </Link>
-          </motion.div>
-        );
-      
-      case 'news':
-        return (
-          <motion.div
-            key="news"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: itemDelay }}
-          >
-            <Link href="/news" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
-              <span className="relative">
-                <TranslatableText>News</TranslatableText>
-                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-              </span>
-            </Link>
-          </motion.div>
-        );
-      
-      case 'events':
-        return (
-          <motion.div
-            key="events"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: itemDelay }}
-          >
-            <Link href="/events" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
-              <span className="relative">
-                <TranslatableText>Events</TranslatableText>
-                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-              </span>
-            </Link>
-          </motion.div>
-        );
-      
       case 'contact':
         return (
           <motion.div
@@ -240,24 +189,7 @@ export function Navbar() {
             </Link>
           </motion.div>
         );
-      
-      case 'museums':
-        return (
-          <motion.div
-            key="museums"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: itemDelay }}
-          >
-            <Link href="/museums" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-colors group text-base" style={{ textDecoration: 'none' }}>
-              <span className="relative">
-                <TranslatableText>Museums</TranslatableText>
-                <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
-              </span>
-            </Link>
-          </motion.div>
-        );
-      
+
       default:
         return null;
     }
@@ -266,50 +198,11 @@ export function Navbar() {
   // Function to render mobile navigation items based on custom order
   const renderMobileNavigationItem = (item: string, custom: number) => {
     switch (item) {
-      case 'home':
-        return (
-          <Link 
-            key="home"
-            href="/" 
-            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-            style={{ textDecoration: 'none' }}
-            onClick={() => setIsOpen(false)}
-          >
-            <TranslatableText>Home</TranslatableText>
-          </Link>
-        );
-      
-      case 'news':
-        return (
-          <Link 
-            key="news"
-            href="/news" 
-            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-            style={{ textDecoration: 'none' }}
-            onClick={() => setIsOpen(false)}
-          >
-            <TranslatableText>News</TranslatableText>
-          </Link>
-        );
-      
-      case 'events':
-        return (
-          <Link 
-            key="events"
-            href="/events" 
-            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-            style={{ textDecoration: 'none' }}
-            onClick={() => setIsOpen(false)}
-          >
-            <TranslatableText>Events</TranslatableText>
-          </Link>
-        );
-      
       case 'contact':
         return (
-          <Link 
+          <Link
             key="contact"
-            href="/contact" 
+            href="/contact"
             className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
             style={{ textDecoration: 'none' }}
             onClick={() => setIsOpen(false)}
@@ -317,20 +210,7 @@ export function Navbar() {
             <TranslatableText>Contact</TranslatableText>
           </Link>
         );
-      
-      case 'museums':
-        return (
-          <Link 
-            key="museums"
-            href="/museums" 
-            className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
-            style={{ textDecoration: 'none' }}
-            onClick={() => setIsOpen(false)}
-          >
-            <TranslatableText>Museums</TranslatableText>
-          </Link>
-        );
-      
+
       default:
         return null;
     }
@@ -411,27 +291,7 @@ export function Navbar() {
             {/* Center Column - Navigation Links (6 columns) */}
             <div className="hidden lg:block col-span-6 relative">
               <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 max-h-20 overflow-visible relative">
-            {/* Dynamic Main Navigation Items */}
-            {loadingAppearance ? (
-              // Loading skeleton for navigation items
-              Array.from({ length: 5 }).map((_, index) => (
-                <motion.div
-                  key={`loading-${index}`}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                  className="h-6 w-20 bg-gray-200 rounded animate-pulse"
-                />
-              ))
-            ) : (
-              navigationOrder.map((item, index) => 
-                renderMainNavigationItem(item, index)
-              )
-            )}
-            
-
-
-                {/* Dynamic Categories from Admin */}
+                        {/* Dynamic Categories from Admin */}
             {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
               // Show categories that have subcategories OR pages
               const hasSubcategories = categories.some(cat => (cat as any).parentCategory === category.id && cat.isActive);
@@ -580,7 +440,23 @@ export function Navbar() {
                 </motion.div>
               );
             })}
-              </div>
+              
+              {/* Contact Link - Added after categories */}
+              {!loadingAppearance && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 1.2 }}
+                >
+                  <Link href="/contact" className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap" style={{ textDecoration: 'none' }}>
+                    <span className="relative">
+                      <TranslatableText>Contact</TranslatableText>
+                      <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
+                    </span>
+                  </Link>
+                </motion.div>
+              )}
+            </div>
           </div>
 
             {/* Right Column - Language Switcher & Mobile Menu (4 columns on mobile, 3 columns on desktop) */}
@@ -896,6 +772,24 @@ export function Navbar() {
                     );
                   })}
                   
+                  {/* Contact Link in Mobile Menu - Added after categories */}
+                  {!loadingAppearance && (
+                    <motion.div 
+                      custom={10} 
+                      variants={menuItemVariants} 
+                      initial="hidden" 
+                      animate="visible"
+                    >
+                      <Link
+                        href="/contact"
+                        className="block py-3 text-gray-700 hover:text-indigo-600 font-medium transition-colors"
+                        style={{ textDecoration: 'none' }}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <TranslatableText>Contact</TranslatableText>
+                      </Link>
+                    </motion.div>
+                  )}
 
                 </nav>
               </div>
