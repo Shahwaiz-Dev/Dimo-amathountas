@@ -291,6 +291,21 @@ export function PagesManagement() {
           </div>
         </div>
         
+        {/* Slug Disclaimer */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-yellow-900 mb-1">
+                <TranslatableText>{{ en: 'Important Note About Slugs', el: 'Σημαντική Σημείωση για τα Slugs' }}</TranslatableText>
+              </h3>
+              <p className="text-sm text-yellow-800">
+                <TranslatableText>{{ en: 'Slugs (URL identifiers) will only work properly in English. Please ensure your slug contains only English letters, numbers, and hyphens for proper URL functionality.', el: 'Τα Slugs (προσδιοριστές URL) θα λειτουργούν σωστά μόνο στα αγγλικά. Παρακαλώ βεβαιωθείτε ότι το slug σας περιέχει μόνο αγγλικούς χαρακτήρες, αριθμούς και παύλες για σωστή λειτουργικότητα URL.' }}</TranslatableText>
+              </p>
+            </div>
+          </div>
+        </div>
+        
         {/* Link to Main Categories Page */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between">

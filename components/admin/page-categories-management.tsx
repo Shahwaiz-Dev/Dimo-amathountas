@@ -289,6 +289,32 @@ export function PageCategoriesManagement() {
           </div>
         </div>
 
+        {/* How to Create Pages Section */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            <TranslatableText>{{ en: 'How to Create Pages', el: 'Πώς να Δημιουργήσετε Σελίδες' }}</TranslatableText>
+          </h3>
+          <div className="text-sm text-blue-800 space-y-2">
+            <p>
+              <TranslatableText>{{ en: '1. First, create categories and subcategories here', el: '1. Πρώτα, δημιουργήστε κατηγορίες και υποκατηγορίες εδώ' }}</TranslatableText>
+            </p>
+            <p>
+              <TranslatableText>{{ en: '2. Then go to Admin > Municipality Pages to create pages for your categories', el: '2. Μετά πηγαίνετε στο Admin > Municipality Pages για να δημιουργήσετε σελίδες για τις κατηγορίες σας' }}</TranslatableText>
+            </p>
+            <p>
+              <TranslatableText>{{ en: '3. When creating a page, select the appropriate category from the dropdown', el: '3. Όταν δημιουργείτε μια σελίδα, επιλέξτε την κατάλληλη κατηγορία από το dropdown' }}</TranslatableText>
+            </p>
+            <p>
+              <TranslatableText>{{ en: '4. Pages will automatically appear under their respective categories in the navbar', el: '4. Οι σελίδες θα εμφανιστούν αυτόματα κάτω από τις αντίστοιχες κατηγορίες στη γραμμή πλοήγησης' }}</TranslatableText>
+            </p>
+            <div className="mt-3 p-3 bg-white rounded border">
+              <p className="text-xs text-gray-600">
+                <TranslatableText>{{ en: '💡 Tip: You can also create categories directly from the Municipality Pages section, but for better organization, we recommend using this dedicated Categories page.', el: '💡 Συμβουλή: Μπορείτε επίσης να δημιουργήσετε κατηγορίες απευθείας από την ενότητα Σελίδες Δήμου, αλλά για καλύτερη οργάνωση, προτείνουμε τη χρήση αυτής της αφιερωμένης σελίδας Κατηγοριών.' }}</TranslatableText>
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Categories List */}
         <div className="space-y-4">
           {categories.length === 0 ? (
@@ -415,32 +441,6 @@ export function PageCategoriesManagement() {
               );
             })
           )}
-        </div>
-        
-        {/* How to Create Pages Section */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-3">
-            <TranslatableText>{{ en: 'How to Create Pages', el: 'Πώς να Δημιουργήσετε Σελίδες' }}</TranslatableText>
-          </h3>
-          <div className="text-sm text-blue-800 space-y-2">
-            <p>
-              <TranslatableText>{{ en: '1. First, create categories and subcategories here', el: '1. Πρώτα, δημιουργήστε κατηγορίες και υποκατηγορίες εδώ' }}</TranslatableText>
-            </p>
-            <p>
-              <TranslatableText>{{ en: '2. Then go to Admin > Municipality Pages to create pages for your categories', el: '2. Μετά πηγαίνετε στο Admin > Municipality Pages για να δημιουργήσετε σελίδες για τις κατηγορίες σας' }}</TranslatableText>
-            </p>
-            <p>
-              <TranslatableText>{{ en: '3. When creating a page, select the appropriate category from the dropdown', el: '3. Όταν δημιουργείτε μια σελίδα, επιλέξτε την κατάλληλη κατηγορία από το dropdown' }}</TranslatableText>
-            </p>
-            <p>
-              <TranslatableText>{{ en: '4. Pages will automatically appear under their respective categories in the navbar', el: '4. Οι σελίδες θα εμφανιστούν αυτόματα κάτω από τις αντίστοιχες κατηγορίες στη γραμμή πλοήγησης' }}</TranslatableText>
-            </p>
-            <div className="mt-3 p-3 bg-white rounded border">
-              <p className="text-xs text-gray-600">
-                <TranslatableText>{{ en: '💡 Tip: You can also create categories directly from the Municipality Pages section, but for better organization, we recommend using this dedicated Categories page.', el: '💡 Συμβουλή: Μπορείτε επίσης να δημιουργήσετε κατηγορίες απευθείας από την ενότητα Σελίδες Δήμου, αλλά για καλύτερη οργάνωση, προτείνουμε τη χρήση αυτής της αφιερωμένης σελίδας Κατηγοριών.' }}</TranslatableText>
-              </p>
-            </div>
-          </div>
         </div>
 
       </div>
