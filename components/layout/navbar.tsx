@@ -288,7 +288,8 @@ export function Navbar() {
 
             {/* Center Column - Navigation Links (6 columns) */}
             <div className="hidden lg:block col-span-6 relative">
-              <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 max-h-20 overflow-visible relative">
+              <div className="flex justify-center items-center gap-x-1 lg:gap-x-2 xl:gap-x-3 overflow-hidden relative min-h-[3rem]">
+                <div className="flex items-center gap-x-1 lg:gap-x-2 xl:gap-x-3 whitespace-nowrap">
                         {/* Dynamic Categories from Admin */}
             {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
               // Show categories that have subcategories OR pages
@@ -310,10 +311,10 @@ export function Navbar() {
                 >
                   {/* Category Button (Always a dropdown trigger) */}
                   <button 
-                        className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group flex items-center gap-1 text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[120px] xl:max-w-[150px]"
+                    className="relative text-gray-700 hover:text-indigo-600 font-medium transition-all duration-200 group flex items-center gap-1 text-sm xl:text-base hover:-translate-y-0.5 whitespace-nowrap max-w-[100px] lg:max-w-[120px] xl:max-w-[140px] 2xl:max-w-[160px]"
                     onClick={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: !prev[category.id] }))}
                   >
-                    <span className="relative">
+                    <span className="relative truncate">
                       <TranslatableText>{category.name}</TranslatableText>
                       <span className="absolute -top-1 left-0 w-0 h-0.5 bg-indigo-300 transition-all duration-300 group-hover:w-full"></span>
                     </span>
@@ -454,8 +455,9 @@ export function Navbar() {
                   </Link>
                 </motion.div>
               )}
+                </div>
+              </div>
             </div>
-          </div>
 
             {/* Right Column - Language Switcher & Mobile Menu (4 columns on mobile, 3 columns on desktop) */}
           <motion.div 
