@@ -266,15 +266,16 @@ export function Navbar() {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <motion.div 
-              className="relative flex items-center" 
+              className="relative flex items-center cursor-pointer" 
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
+              onClick={() => window.location.href = '/'}
             >
               <Image 
                 src="/logo.png" 
                 alt="Logo" 
-                  width={100} 
-                  height={100} 
+                  width={130} 
+                  height={130} 
                 className="rounded-full object-cover" 
               />
             </motion.div>
