@@ -253,10 +253,10 @@ export function Navbar() {
       </motion.div>
       
       {/* Main Navbar */}
-      <nav className="bg-white shadow border-b border-border sticky top-0 z-50 overflow-visible">
-        <div className="container mx-auto px-4 overflow-visible">
+      <nav className="bg-white shadow border-b border-border sticky top-0 z-50 overflow-visible" style={{ zIndex: 1000 }}>
+        <div className="container mx-auto px-4 overflow-visible relative">
           {/* Three-Column Layout */}
-          <div className="grid grid-cols-12 gap-4 items-center h-24 overflow-visible">
+          <div className="grid grid-cols-12 gap-4 items-center h-24 overflow-visible relative">
             
             {/* Left Column - Logo & Branding (3 columns on desktop, 8 columns on mobile) */}
           <motion.div 
@@ -287,9 +287,9 @@ export function Navbar() {
           </motion.div>
 
             {/* Center Column - Navigation Links (6 columns) */}
-            <div className="hidden lg:block col-span-6 relative">
-              <div className="flex justify-center items-center gap-x-1 lg:gap-x-2 xl:gap-x-3 overflow-hidden relative min-h-[3rem]">
-                <div className="flex items-center gap-x-1 lg:gap-x-2 xl:gap-x-3 whitespace-nowrap">
+            <div className="hidden lg:block col-span-6 relative overflow-visible">
+              <div className="flex justify-center items-center gap-x-1 lg:gap-x-2 xl:gap-x-3 relative min-h-[3rem] overflow-visible">
+                <div className="flex items-center gap-x-1 lg:gap-x-2 xl:gap-x-3 whitespace-nowrap overflow-visible">
                         {/* Dynamic Categories from Admin */}
             {!loadingNavbarCategories && navbarCategoriesToShow.map((category, index) => {
               // Show categories that have subcategories OR pages
@@ -302,7 +302,8 @@ export function Navbar() {
               return (
                 <motion.div 
                   key={category.id}
-                  className="relative group z-10"
+                  className="relative group"
+                  style={{ zIndex: 1100 }}
                   onMouseEnter={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: true }))}
                   onMouseLeave={() => setDynamicDropdownStates(prev => ({ ...prev, [category.id]: false }))}
                   initial={{ opacity: 0, y: -10 }}
@@ -330,16 +331,18 @@ export function Navbar() {
                   <AnimatePresence>
                     {dynamicDropdownStates[category.id] && (
                       <motion.div 
-                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-xl border border-gray-200 z-[99999]"
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-56 bg-white rounded-md shadow-2xl border border-gray-200"
                         variants={dropdownVariants}
                         initial="hidden"
                         animate="visible"
                         exit="exit"
                         style={{ 
-                          zIndex: 99999, 
+                          zIndex: 9999, 
                           position: 'absolute',
                           backgroundColor: 'white',
-                          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+                          transform: 'translateX(-50%)',
+                          pointerEvents: 'auto'
                         }}
                       >
                         <div className="py-1">
