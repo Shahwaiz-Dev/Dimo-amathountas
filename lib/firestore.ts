@@ -12,7 +12,8 @@ import {
   orderBy,
   setDoc,
   where,
-  limit
+  limit,
+  writeBatch
 } from 'firebase/firestore';
 import { AppearanceSettings } from './appearance-utils';
 
@@ -405,6 +406,7 @@ export interface PageCategory {
   isActive?: boolean;
   showInNavbar?: boolean; // Added for navbar filtering
   parentCategory?: string | null; // Added for subcategories, allows null
+  navOrder?: number; // Added for drag-and-drop ordering
 }
 
 export async function getPageCategories(): Promise<PageCategory[]> {
@@ -431,6 +433,22 @@ export async function deletePageCategory(id: string): Promise<void> {
   await deleteDoc(doc(db, 'pageCategories', id));
 }
 
+export async function updateCategoryOrders(categories: { id: string; navOrder: number }[]): Promise<void> {
+  try {
+    const batch = writeBatch(db);
+    
+    categories.forEach(({ id, navOrder }) => {
+      const categoryRef = doc(db, 'pageCategories', id);
+      batch.update(categoryRef, { navOrder });
+    });
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Error updating category orders:', error);
+    throw error;
+  }
+}
+
 
 
 export async function getNavbarCategories(): Promise<PageCategory[]> {
@@ -447,6 +465,7 @@ export async function getNavbarCategories(): Promise<PageCategory[]> {
         
         return isActive && showInNavbar;
       })
+      .sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0)) // Sort by navOrder
       .slice(0, 10); // Enforce maximum of 10 navbar categories
   } catch (error) {
     console.error('Error fetching navbar categories:', error);

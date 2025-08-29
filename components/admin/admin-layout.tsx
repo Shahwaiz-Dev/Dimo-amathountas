@@ -290,6 +290,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
               ) : pageCategories.length > 0 ? (
                 pageCategories
                   .filter(category => category.isActive !== false)
+                  .sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0))
                   .map((category) => {
                     const IconComponent = getIconComponent(category.icon || 'building');
                     const isCategoryActive = safePathname.startsWith('/admin/pages') && 

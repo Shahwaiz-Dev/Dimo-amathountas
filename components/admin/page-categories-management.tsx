@@ -21,7 +21,8 @@ import {
   Settings,
   Heart,
   FileText,
-  Tag
+  Tag,
+  GripVertical
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -29,11 +30,13 @@ import {
   addPageCategory, 
   updatePageCategory, 
   deletePageCategory,
+  updateCategoryOrders,
   PageCategory
 } from '@/lib/firestore';
 import { TranslatableText } from '@/components/translatable-content';
 import { HeartbeatLoader } from '@/components/ui/heartbeat-loader';
 import { useTranslation } from '@/hooks/useTranslation';
+import { Reorder } from 'framer-motion';
 
 const CATEGORY_ICONS = [
   { value: 'building', label: { en: 'Building', el: 'Κτίριο' }, icon: Building },
@@ -56,6 +59,8 @@ const CATEGORY_COLORS = [
 
 export function PageCategoriesManagement() {
   const [categories, setCategories] = useState<PageCategory[]>([]);
+  const [mainCategories, setMainCategories] = useState<PageCategory[]>([]);
+  const [subcategories, setSubcategories] = useState<PageCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<PageCategory | null>(null);
@@ -85,6 +90,16 @@ export function PageCategoriesManagement() {
     try {
       const fetchedCategories = await getPageCategories();
       setCategories(fetchedCategories);
+      
+      // Separate main categories and subcategories
+      const mainCats = fetchedCategories
+        .filter(cat => !cat.parentCategory)
+        .sort((a, b) => (a.navOrder || 0) - (b.navOrder || 0));
+      const subCats = fetchedCategories
+        .filter(cat => cat.parentCategory);
+        
+      setMainCategories(mainCats);
+      setSubcategories(subCats);
     } catch (error) {
       console.error('Error loading categories:', error);
       toast({
@@ -146,6 +161,36 @@ export function PageCategoriesManagement() {
           variant: "destructive",
         });
       }
+    }
+  };
+
+  const handleReorderMainCategories = async (newOrder: PageCategory[]) => {
+    try {
+      // Update local state immediately for smooth UX
+      setMainCategories(newOrder);
+      
+      // Prepare order updates for database
+      const orderUpdates = newOrder.map((category, index) => ({
+        id: category.id,
+        navOrder: index
+      }));
+      
+      // Update database
+      await updateCategoryOrders(orderUpdates);
+      
+      toast({
+        title: currentLang === 'el' ? "Επιτυχία" : "Success",
+        description: currentLang === 'el' ? "Η σειρά των κατηγοριών ενημερώθηκε" : "Category order updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating category order:', error);
+      // Reload categories on error to revert changes
+      loadCategories();
+      toast({
+        title: currentLang === 'el' ? "Σφάλμα" : "Error",
+        description: currentLang === 'el' ? "Αποτυχία ενημέρωσης σειράς κατηγοριών" : "Failed to update category order",
+        variant: "destructive",
+      });
     }
   };
 
@@ -316,7 +361,7 @@ export function PageCategoriesManagement() {
         </div>
 
         {/* Categories List */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {categories.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
@@ -342,104 +387,217 @@ export function PageCategoriesManagement() {
               </CardContent>
             </Card>
           ) : (
-            categories.map((category, index) => {
-              const IconComponent = getIconComponent(category.icon || 'file-text');
-              const colorClass = getColorClass(category.color || 'blue');
-              
-              return (
-                <Card key={category.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-
-                        
-                        <div className={`p-2 rounded-lg ${colorClass}`}>
-                          <IconComponent className="h-5 w-5" />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <h3 className="font-semibold text-lg">
-                              <TranslatableText>{category.name}</TranslatableText>
-                            </h3>
-                            <Badge variant={category.isActive ? "default" : "secondary"}>
-                              {category.isActive ? (
-                                <TranslatableText>{{ en: 'Active', el: 'Ενεργή' }}</TranslatableText>
-                              ) : (
-                                <TranslatableText>{{ en: 'Inactive', el: 'Ανενεργή' }}</TranslatableText>
-                              )}
-                            </Badge>
-
-                            {category.showInNavbar && (
-                              <Badge variant="default" className="bg-green-100 text-green-600">
-                                <TranslatableText>{{ en: 'Navbar', el: 'Γραμμή Πλοήγησης' }}</TranslatableText>
-                              </Badge>
-                            )}
-                            {category.parentCategory && (
-                              <Badge variant="secondary">
-                                <TranslatableText>{{ en: 'Subcategory', el: 'Υποκατηγορία' }}</TranslatableText>
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {category.description ? (
-                              <TranslatableText>{category.description}</TranslatableText>
-                            ) : (
-                              <TranslatableText>{{ en: 'No description', el: 'Δεν υπάρχει περιγραφή' }}</TranslatableText>
-                            )}
-                          </p>
-                          <div className="flex items-center space-x-2 text-xs text-gray-500">
-                            <span>
-                              {currentLang === 'el' ? 'English' : 'Ελληνικά'}: {currentLang === 'el' ? (category.name.en || '') : (category.name.el || '')}
-                            </span>
-                            {category.description?.el && (
-                              <span>• {currentLang === 'el' ? (category.description.en || '') : (category.description.el || '')}</span>
-                            )}
-                            {(category as any).slug && (
-                              <span>• Slug: {(category as any).slug}</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+            <>
+              {/* Main Categories - Draggable */}
+              {mainCategories.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <h3 className="text-lg font-semibold">
+                      <TranslatableText>{{ en: 'Main Categories', el: 'Κύριες Κατηγορίες' }}</TranslatableText>
+                    </h3>
+                    <Badge variant="secondary">
+                      <TranslatableText>{{ en: 'Drag to reorder', el: 'Σύρετε για αναδιάταξη' }}</TranslatableText>
+                    </Badge>
+                  </div>
+                  <Reorder.Group
+                    axis="y"
+                    values={mainCategories}
+                    onReorder={handleReorderMainCategories}
+                    className="space-y-3"
+                  >
+                    {mainCategories.map((category) => {
+                      const IconComponent = getIconComponent(category.icon || 'file-text');
+                      const colorClass = getColorClass(category.color || 'blue');
                       
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(category)}
+                      return (
+                        <Reorder.Item 
+                          key={category.id} 
+                          value={category}
+                          className="cursor-move"
                         >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              parentCategory: category.id,
-                              showInNavbar: false, // Subcategories don't show in navbar by default
-                            });
-                            setIsDialogOpen(true);
-                          }}
-                          className="text-green-600 hover:text-green-700"
-                          title={currentLang === 'el' ? 'Δημιουργία υποκατηγορίας' : 'Create subcategory'}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(category.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })
+                          <Card className="hover:shadow-md transition-shadow border-l-4 border-l-primary">
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                  {/* Drag Handle */}
+                                  <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                                    <GripVertical className="h-5 w-5" />
+                                  </div>
+                                  <div className={`p-2 rounded-lg ${colorClass}`}>
+                                    <IconComponent className="h-5 w-5" />
+                                  </div>
+                                  
+                                  <div className="flex-1">
+                                    <div className="flex items-center space-x-2 mb-1">
+                                      <h3 className="font-semibold text-lg">
+                                        <TranslatableText>{category.name}</TranslatableText>
+                                      </h3>
+                                      <Badge variant={category.isActive ? "default" : "secondary"}>
+                                        {category.isActive ? (
+                                          <TranslatableText>{{ en: 'Active', el: 'Ενεργή' }}</TranslatableText>
+                                        ) : (
+                                          <TranslatableText>{{ en: 'Inactive', el: 'Ανενεργή' }}</TranslatableText>
+                                        )}
+                                      </Badge>
+
+                                      {category.showInNavbar && (
+                                        <Badge variant="default" className="bg-green-100 text-green-600">
+                                          <TranslatableText>{{ en: 'Navbar', el: 'Γραμμή Πλοήγησης' }}</TranslatableText>
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                      {category.description ? (
+                                        <TranslatableText>{category.description}</TranslatableText>
+                                      ) : (
+                                        <TranslatableText>{{ en: 'No description', el: 'Δεν υπάρχει περιγραφή' }}</TranslatableText>
+                                      )}
+                                    </p>
+                                    <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                      <span>
+                                        {currentLang === 'el' ? 'English' : 'Ελληνικά'}: {currentLang === 'el' ? (category.name.en || '') : (category.name.el || '')}
+                                      </span>
+                                      {category.description?.el && (
+                                        <span>• {currentLang === 'el' ? (category.description.en || '') : (category.description.el || '')}</span>
+                                      )}
+                                      {(category as any).slug && (
+                                        <span>• Slug: {(category as any).slug}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                      
+                                <div className="flex items-center space-x-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEdit(category)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setFormData({
+                                        ...formData,
+                                        parentCategory: category.id,
+                                        showInNavbar: false, // Subcategories don't show in navbar by default
+                                      });
+                                      setIsDialogOpen(true);
+                                    }}
+                                    className="text-green-600 hover:text-green-700"
+                                    title={currentLang === 'el' ? 'Δημιουργία υποκατηγορίας' : 'Create subcategory'}
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleDelete(category.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </Reorder.Item>
+                      );
+                    })}
+                  </Reorder.Group>
+                </div>
+              )}
+
+              {/* Subcategories - Non-draggable */}
+              {subcategories.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <h3 className="text-lg font-semibold">
+                      <TranslatableText>{{ en: 'Subcategories', el: 'Υποκατηγορίες' }}</TranslatableText>
+                    </h3>
+                    <Badge variant="outline">
+                      <TranslatableText>{{ en: 'Grouped by parent', el: 'Ομαδοποιημένες κατά γονικό' }}</TranslatableText>
+                    </Badge>
+                  </div>
+                  <div className="space-y-3">
+                    {subcategories.map((category) => {
+                      const IconComponent = getIconComponent(category.icon || 'file-text');
+                      const colorClass = getColorClass(category.color || 'blue');
+                      const parentCategory = categories.find(cat => cat.id === category.parentCategory);
+                      
+                      return (
+                        <Card key={category.id} className="hover:shadow-md transition-shadow ml-8 border-l-4 border-l-gray-300">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-4">
+                                <div className={`p-2 rounded-lg ${colorClass}`}>
+                                  <IconComponent className="h-4 w-4" />
+                                </div>
+                                
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <h4 className="font-semibold">
+                                      <TranslatableText>{category.name}</TranslatableText>
+                                    </h4>
+                                    <Badge variant="secondary">
+                                      <TranslatableText>{{ en: 'Subcategory', el: 'Υποκατηγορία' }}</TranslatableText>
+                                    </Badge>
+                                    <Badge variant={category.isActive ? "default" : "secondary"}>
+                                      {category.isActive ? (
+                                        <TranslatableText>{{ en: 'Active', el: 'Ενεργή' }}</TranslatableText>
+                                      ) : (
+                                        <TranslatableText>{{ en: 'Inactive', el: 'Ανενεργή' }}</TranslatableText>
+                                      )}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-gray-600 mb-1">
+                                    <span className="font-medium">
+                                      <TranslatableText>{{ en: 'Parent:', el: 'Γονικό:' }}</TranslatableText>
+                                    </span>{' '}
+                                    {parentCategory ? (
+                                      <TranslatableText>{parentCategory.name}</TranslatableText>
+                                    ) : (
+                                      <span className="text-red-500">
+                                        <TranslatableText>{{ en: 'Parent not found', el: 'Γονικό δεν βρέθηκε' }}</TranslatableText>
+                                      </span>
+                                    )}
+                                  </p>
+                                  {category.description && (
+                                    <p className="text-sm text-gray-500">
+                                      <TranslatableText>{category.description}</TranslatableText>
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEdit(category)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDelete(category.id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
